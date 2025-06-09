@@ -8,14 +8,22 @@ import os
 # 添加项目根目录到Python路径
 sys.path.append(os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(__file__)))))
 
-from src.main import run_hedge_fund
-from src.backtester import run_backtest
+from app.src.main import run_hedge_fund
+from app.src.backtester import run_backtest
 
 router = APIRouter()
 
 class TradingRequest(BaseModel):
     tickers: List[str]
     show_reasoning: bool = True
+
+class BacktestRequest(BaseModel):
+    tickers: List[str]
+    start_date: str
+    end_date: str
+    initial_cash: float = 100000.0
+    margin_requirement: float = 0.0
+    use_ollama: bool = False
 
 class AnalystSignal(BaseModel):
     name: str

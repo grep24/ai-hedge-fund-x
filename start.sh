@@ -41,4 +41,4 @@ sleep 15
 # 启动应用
 echo "Starting application..."
 cd /app
-exec poetry run uvicorn app.backend.main:app --host 0.0.0.0 --port $PORT --log-level debug --reload 
+exec poetry run uvicorn app.backend.main:app --host 0.0.0.0 --port $PORT --log-level debug --reload --workers 1 --timeout-keep-alive 75 
