@@ -1,18 +1,21 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from app.backend.routes import trading
 
-from app.backend.routes import api_router
+app = FastAPI(title="AI Hedge Fund API")
 
-app = FastAPI(title="AI Hedge Fund API", description="Backend API for AI Hedge Fund", version="0.1.0")
-
-# Configure CORS
+# 配置CORS
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:5173", "http://127.0.0.1:5173"],  # Frontend URLs
+    allow_origins=["*"],  # 在生产环境中应该设置具体的域名
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
 
-# Include all routes
-app.include_router(api_router)
+# 注册路由
+app.include_router(trading.router, prefix="/api/trading", tags=["trading"])
+
+@app.get("/")
+async def root():
+    return {"message": "Welcome to AI Hedge Fund API"}
