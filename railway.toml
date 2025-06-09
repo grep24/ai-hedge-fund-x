@@ -1,6 +1,6 @@
 [build]
 builder = "nixpacks"
-buildCommand = "poetry install --no-dev"
+buildCommand = "poetry install --no-dev --no-interaction"
 
 [deploy]
 startCommand = "chmod +x start.sh && ./start.sh"
@@ -12,4 +12,5 @@ maxRetries = 10
 [env]
 PYTHONPATH = "/app"
 PYTHONUNBUFFERED = "1"
-PORT = "8000" 
+PORT = "8000"
+PYTHON_VERSION = "3.11" 
