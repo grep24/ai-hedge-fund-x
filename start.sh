@@ -10,7 +10,7 @@ echo "Environment variables:"
 env
 
 # 设置Python路径
-export PYTHONPATH=/app:/app/src
+export PYTHONPATH=/app
 echo "PYTHONPATH set to: $PYTHONPATH"
 
 # 显示当前目录结构
@@ -45,4 +45,4 @@ sleep 15
 # 启动应用
 echo "Starting application..."
 cd /app
-exec poetry run uvicorn app.backend.main:app --host 0.0.0.0 --port $PORT --log-level debug --reload --workers 1 --timeout-keep-alive 75 
+exec poetry run uvicorn app.backend.main:app --host 0.0.0.0 --port $PORT --log-level debug --reload --workers 1 --timeout-keep-alive 75 --reload-dir /app/src 

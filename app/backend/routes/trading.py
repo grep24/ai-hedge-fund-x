@@ -6,7 +6,8 @@ import sys
 import os
 
 # 添加项目根目录到Python路径
-sys.path.append(os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(__file__)))))
+root_dir = os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(__file__))))
+sys.path.append(root_dir)
 
 from src.main import run_hedge_fund
 from src.backtester import run_backtest
