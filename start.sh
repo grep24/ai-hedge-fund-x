@@ -10,7 +10,7 @@ echo "Environment variables:"
 env
 
 # 设置Python路径
-export PYTHONPATH=/app
+export PYTHONPATH=/app:/app/src
 echo "PYTHONPATH set to: $PYTHONPATH"
 
 # 显示当前目录结构
@@ -33,6 +33,10 @@ poetry --version
 # 检查依赖安装
 echo "Checking dependencies..."
 poetry show
+
+# 检查src目录
+echo "Checking src directory..."
+ls -la src/
 
 # 等待数据库和其他服务（如果有的话）
 echo "Waiting for services to be ready..."
