@@ -1,1 +1,1 @@
-web: poetry run uvicorn app.backend.main:app --host 0.0.0.0 --port $PORT 
+web: chmod +x start.sh && ./start.sh 

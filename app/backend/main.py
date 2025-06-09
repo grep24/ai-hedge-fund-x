@@ -25,12 +25,8 @@ app.include_router(trading.router, prefix="/api/trading", tags=["trading"])
 
 @app.get("/")
 async def root():
-    return {"status": "healthy", "message": "AI Hedge Fund API is running"}
+    return {"status": "ok"}
 
 @app.get("/health")
 async def health_check():
-    return {
-        "status": "healthy",
-        "version": "1.0.0",
-        "timestamp": datetime.datetime.now().isoformat()
-    }
+    return {"status": "ok"}

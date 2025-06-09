@@ -4,8 +4,8 @@ buildCommand = "poetry install --no-dev"
 
 [deploy]
 startCommand = "PYTHONPATH=/app poetry run uvicorn app.backend.main:app --host 0.0.0.0 --port $PORT"
-healthcheckPath = "/health"
-healthcheckTimeout = 100
+healthcheckPath = "/"
+healthcheckTimeout = 300
 restartPolicy = "on-failure"
 maxRetries = 10
 
