@@ -1,6 +1,7 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from app.backend.routes import trading
+import datetime
 
 app = FastAPI(title="AI Hedge Fund API")
 
@@ -18,4 +19,12 @@ app.include_router(trading.router, prefix="/api/trading", tags=["trading"])
 
 @app.get("/")
 async def root():
-    return {"message": "Welcome to AI Hedge Fund API"}
+    return {"status": "healthy", "message": "AI Hedge Fund API is running"}
+
+@app.get("/health")
+async def health_check():
+    return {
+        "status": "healthy",
+        "version": "1.0.0",
+        "timestamp": datetime.datetime.now().isoformat()
+    }
