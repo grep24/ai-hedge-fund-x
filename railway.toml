@@ -3,13 +3,13 @@ builder = "nixpacks"
 buildCommand = "poetry install --no-dev"
 
 [deploy]
-startCommand = "PYTHONPATH=/app poetry run uvicorn app.backend.main:app --host 0.0.0.0 --port $PORT"
+startCommand = "chmod +x start.sh && ./start.sh"
 healthcheckPath = "/"
-healthcheckTimeout = 300
+healthcheckTimeout = 600
 restartPolicy = "on-failure"
 maxRetries = 10
 
 [env]
-PYTHON_VERSION = "3.11"
-PORT = "8000"
-PYTHONPATH = "/app" 
+PYTHONPATH = "/app"
+PYTHONUNBUFFERED = "1"
+PORT = "8000" 
