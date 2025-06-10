@@ -1,12 +1,17 @@
+[providers]
+python = "3.11"
+
 [phases.setup]
-nixPkgs = ["python311", "nodejs_20"]
+nixPkgs = ["python311", "nodejs_20", "gcc"]
 
 [phases.install]
 cmds = [
-    "pip install -r requirements.txt",
+    "python3 --version",
+    "python3 -m pip install --upgrade pip",
+    "python3 -m pip install -r requirements.txt",
     "chmod +x railway-build.sh",
     "./railway-build.sh"
 ]
 
 [start]
-cmd = "python start_server.py" 
+cmd = "python3 start_server.py" 
