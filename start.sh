@@ -41,9 +41,19 @@ ls -la src/
 # 构建前端
 echo "Building frontend..."
 cd /app/app/frontend
-npm install
+# 确保node_modules目录存在
+if [ ! -d "node_modules" ]; then
+    echo "Installing frontend dependencies..."
+    npm install --no-audit --no-fund
+fi
+# 确保dist目录存在
+mkdir -p dist
 npm run build
 cd /app
+
+# 确保前端构建目录存在
+echo "Ensuring frontend build directory exists..."
+mkdir -p /app/app/frontend/dist
 
 # 等待数据库和其他服务（如果有的话）
 echo "Waiting for services to be ready..."

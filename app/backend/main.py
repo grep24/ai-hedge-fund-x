@@ -22,25 +22,8 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# 注册路由
+# 注册API路由
 app.include_router(trading.router, prefix="/api/trading", tags=["trading"])
-
-# 配置静态文件服务
-frontend_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), "frontend", "dist")
-if os.path.exists(frontend_path):
-    app.mount("/", StaticFiles(directory=frontend_path, html=True), name="frontend")
-
-@app.get("/api")
-async def root():
-    """
-    健康检查端点 - 返回服务状态和版本信息
-    """
-    return {
-        "status": "healthy",
-        "service": "ai-hedge-fund-api",
-        "version": "0.1.0",
-        "timestamp": datetime.datetime.utcnow().isoformat()
-    }
 
 @app.get("/health")
 async def health_check():
@@ -55,3 +38,20 @@ async def health_check():
         "python_version": sys.version,
         "environment": os.getenv("ENVIRONMENT", "production")
     }
+
+@app.get("/api")
+async def root():
+    """
+    API根端点 - 返回服务状态和版本信息
+    """
+    return {
+        "status": "healthy",
+        "service": "ai-hedge-fund-api",
+        "version": "0.1.0",
+        "timestamp": datetime.datetime.utcnow().isoformat()
+    }
+
+# 配置静态文件服务 - 放在所有API路由之后
+frontend_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), "frontend", "dist")
+if os.path.exists(frontend_path):
+    app.mount("/", StaticFiles(directory=frontend_path, html=True), name="frontend")
