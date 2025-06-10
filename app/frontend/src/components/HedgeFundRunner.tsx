@@ -38,15 +38,14 @@ export const HedgeFundRunner: React.FC<HedgeFundRunnerProps> = ({ onComplete }) 
         show_reasoning: true,
       };
       
-      // 创建EventSource进行流式连接
-      const eventSource = await tradingApi.runHedgeFund(config, (event) => {
+      // 创建流式连接
+      const abort = await tradingApi.runHedgeFund(config, (event) => {
         // 更新代理状态
         if (event.agent && event.status) {
           let nodeStatus: NodeStatus = 'IDLE';
           if (event.status === 'IN_PROGRESS') nodeStatus = 'IN_PROGRESS';
           else if (event.status === 'COMPLETE') nodeStatus = 'COMPLETE';
           else if (event.status === 'ERROR') nodeStatus = 'ERROR';
-          
           updateAgentNode(event.agent, {
             status: nodeStatus,
             message: event.message || '',
@@ -55,23 +54,18 @@ export const HedgeFundRunner: React.FC<HedgeFundRunnerProps> = ({ onComplete }) 
             timestamp: event.timestamp,
           });
         }
-      });
-
-      // 监听完成事件
-      eventSource.addEventListener('complete', (event: any) => {
-        const result = JSON.parse(event.data);
-        if (onComplete) {
-          onComplete(result);
+        // 监听完成事件
+        if (event.status === 'COMPLETE' && onComplete) {
+          onComplete(event);
+          setLoading(false);
+          abort();
         }
-        setLoading(false);
-        eventSource.close();
-      });
-
-      // 监听错误
-      eventSource.addEventListener('error', () => {
-        setError('运行对冲基金策略过程中发生错误');
-        setLoading(false);
-        eventSource.close();
+        // 监听错误
+        if (event.status === 'ERROR') {
+          setError('运行对冲基金策略过程中发生错误');
+          setLoading(false);
+          abort();
+        }
       });
 
     } catch (err) {

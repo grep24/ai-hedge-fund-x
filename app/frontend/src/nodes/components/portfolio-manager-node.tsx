@@ -10,7 +10,7 @@ import { Input } from '@/components/ui/input';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { useNodeContext } from '@/contexts/node-context';
 import { apiModels, defaultModel, mapProviderToEnum, ModelItem } from '@/data/models';
-import { api } from '@/services/api';
+import { api, tradingApi, EventSourceCallback } from '@/services/api';
 import { type PortfolioManagerNode } from '../types';
 import { NodeShell } from './node-shell';
 
@@ -62,7 +62,7 @@ export function PortfolioManagerNode({
     setEndDate(e.target.value);
   };
 
-  const handlePlay = () => {
+  const handlePlay = async () => {
     // First, reset all nodes to IDLE
     resetAllNodes();
     
@@ -111,19 +111,28 @@ export function PortfolioManagerNode({
       }
     }
         
-    abortControllerRef.current = api.runHedgeFund(
+    abortControllerRef.current = await tradingApi.runHedgeFund(
       {
         tickers: tickerList,
         selected_agents: Array.from(selectedAgents),
         agent_models: agentModels,
-        // Keep global model for backwards compatibility (will be removed later)
-        model_name: selectedModel?.model_name || undefined,
-        model_provider: selectedModel?.provider as any || undefined,
         start_date: startDate,
         end_date: endDate,
+        model_name: selectedModel?.model_name,
+        model_provider: selectedModel?.provider,
+        initial_cash: 100000,
+        margin_requirement: 0,
+        show_reasoning: true,
       },
-      // Pass the node status context to the API
-      nodeContext
+      (event: any) => {
+        // 这里可根据event.status等处理节点状态
+        if (event.status === 'COMPLETE') {
+          abortControllerRef.current && abortControllerRef.current();
+        }
+        if (event.status === 'ERROR') {
+          abortControllerRef.current && abortControllerRef.current();
+        }
+      }
     );
   };
 

@@ -66,6 +66,9 @@ export interface HedgeFundConfig {
   initial_cash: number;
   margin_requirement: number;
   show_reasoning: boolean;
+  agent_models?: any[];
+  start_date?: string;
+  end_date?: string;
 }
 
 export interface HedgeFundStatus {

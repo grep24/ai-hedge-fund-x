@@ -82,30 +82,59 @@ export const tradingApi = {
     return eventSource;
   },
 
-  runHedgeFund: async (config: HedgeFundConfig, onEvent: EventSourceCallback): Promise<EventSource> => {
-    const params = new URLSearchParams({
-      tickers: config.tickers.join(','),
-      selected_agents: config.selected_agents.join(','),
-      initial_cash: String(config.initial_cash),
-      margin_requirement: String(config.margin_requirement),
+  runHedgeFund: async (config: HedgeFundConfig, onEvent: EventSourceCallback): Promise<() => void> => {
+    const controller = new AbortController();
+    const { signal } = controller;
+    const response = await fetch(`${API_BASE_URL}/api/hedge-fund/run`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(config),
+      signal,
     });
-    
-    // Add optional parameters if they exist
-    if (config.model_name) {
-      params.append('model_name', config.model_name);
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
     }
-    if (config.model_provider) {
-      params.append('model_provider', config.model_provider);
+    const reader = response.body?.getReader();
+    if (!reader) {
+      throw new Error('Failed to get response reader');
     }
-
-    const eventSource = new EventSource(`${API_BASE_URL}/api/hedge-fund/run?${params}`);
-    
-    eventSource.onmessage = (event) => {
-      const data = JSON.parse(event.data);
-      onEvent(data);
-    };
-
-    return eventSource;
+    const decoder = new TextDecoder();
+    let buffer = '';
+    (async () => {
+      try {
+        while (true) {
+          const { done, value } = await reader.read();
+          if (done) break;
+          const chunk = decoder.decode(value, { stream: true });
+          buffer += chunk;
+          const events = buffer.split('\n\n');
+          buffer = events.pop() || '';
+          for (const eventText of events) {
+            if (!eventText.trim()) continue;
+            try {
+              const eventTypeMatch = eventText.match(/^event: (.+)$/m);
+              const dataMatch = eventText.match(/^data: (.+)$/m);
+              if (eventTypeMatch && dataMatch) {
+                const eventType = eventTypeMatch[1];
+                const eventData = JSON.parse(dataMatch[1]);
+                if (eventType === 'progress' || eventType === 'complete' || eventType === 'error') {
+                  onEvent(eventData);
+                }
+              }
+            } catch (err) {
+              console.error('Error parsing SSE event:', err, 'Raw event:', eventText);
+            }
+          }
+        }
+      } catch (error: any) {
+        if (error.name !== 'AbortError') {
+          console.error('Error reading SSE stream:', error);
+        }
+      }
+    })();
+    return () => controller.abort();
   },
 
   getHedgeFundStatus: async (): Promise<HedgeFundStatus> => {

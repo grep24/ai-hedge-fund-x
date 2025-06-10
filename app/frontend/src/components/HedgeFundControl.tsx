@@ -34,8 +34,19 @@ export const HedgeFundControl: React.FC = () => {
         show_reasoning: true,
       };
       
-      await tradingApi.runHedgeFund(config, (event) => {
+      const abort = await tradingApi.runHedgeFund(config, (event) => {
         console.log('Hedge fund event:', event);
+        if (event.status === 'COMPLETE') {
+          setIsRunning(false);
+          checkStatus();
+          abort();
+        }
+        if (event.status === 'ERROR') {
+          message.error('运行对冲基金策略过程中发生错误');
+          setIsRunning(false);
+          checkStatus();
+          abort();
+        }
       });
       
       message.success('对冲基金已启动');
