@@ -1,5 +1,7 @@
 import { NodeStatus, OutputNodeData, useNodeContext } from '@/contexts/node-context';
 import { ModelProvider } from '@/services/types';
+import axios from 'axios';
+import type { BacktestConfig, BacktestResult, HedgeFundConfig, HedgeFundStatus, ModelConfig } from '../types';
 
 interface AgentModelConfig {
   agent_id: string;
@@ -20,6 +22,36 @@ interface HedgeFundRequest {
 }
 
 const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000';
+
+const apiClient = axios.create({
+  baseURL: '/api',
+});
+
+export const tradingApi = {
+  getAvailableModels: async (): Promise<ModelConfig[]> => {
+    const response = await apiClient.get('/trading/models');
+    return response.data;
+  },
+
+  runBacktest: async (config: BacktestConfig): Promise<BacktestResult> => {
+    const response = await apiClient.post('/trading/backtest', config);
+    return response.data;
+  },
+
+  startHedgeFund: async (config: HedgeFundConfig): Promise<HedgeFundStatus> => {
+    const response = await apiClient.post('/trading/start', config);
+    return response.data;
+  },
+
+  getHedgeFundStatus: async (): Promise<HedgeFundStatus> => {
+    const response = await apiClient.get('/trading/status');
+    return response.data;
+  },
+
+  stopHedgeFund: async (): Promise<void> => {
+    await apiClient.post('/trading/stop');
+  }
+};
 
 export const api = {
   /**
