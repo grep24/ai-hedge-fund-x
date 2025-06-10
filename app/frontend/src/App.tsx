@@ -1,18 +1,17 @@
-import { useState } from 'react';
-import { Flow } from './components/flow';
-import { Layout } from './components/layout';
+import React from 'react';
+import { ConfigProvider } from 'antd';
+import zhCN from 'antd/es/locale/zh_CN';
+import { NodeProvider } from '@/contexts/node-context';
+import { Home } from '@/pages/Home';
 
-
-export default function App() {
-  const [showLeftSidebar] = useState(false);
-  const [showRightSidebar] = useState(false);
-
+const App: React.FC = () => {
   return (
-    <Layout
-      leftSidebar={showLeftSidebar ? <div className="p-4 text-white">Left Sidebar Content</div> : undefined}
-      rightSidebar={showRightSidebar ? <div className="p-4 text-white">Right Sidebar Content</div> : undefined}
-    >
-      <Flow />
-    </Layout>
+    <ConfigProvider locale={zhCN}>
+      <NodeProvider>
+        <Home />
+      </NodeProvider>
+    </ConfigProvider>
   );
-}
+};
+
+export default App;

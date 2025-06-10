@@ -7,7 +7,7 @@ from langchain_groq import ChatGroq
 from langchain_openai import ChatOpenAI
 from langchain_ollama import ChatOllama
 from enum import Enum
-from pydantic import BaseModel
+from pydantic import BaseModel, ConfigDict
 from typing import Tuple, List
 from pathlib import Path
 
@@ -25,6 +25,8 @@ class ModelProvider(str, Enum):
 
 class LLMModel(BaseModel):
     """Represents an LLM model configuration"""
+    
+    model_config = ConfigDict(protected_namespaces=())
 
     display_name: str
     model_name: str

@@ -15,21 +15,19 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover"
-import { type ModelItem } from "@/data/models"
 import { cn } from "@/lib/utils"
+import { apiModels, type ModelItem } from "@/data/models"
 
 interface ModelSelectorProps {
-  models: ModelItem[];
-  value: string;
+  value: ModelItem | null;
   onChange: (item: ModelItem | null) => void;
   placeholder?: string;
 }
 
 export function ModelSelector({ 
-  models, 
   value, 
   onChange, 
-  placeholder = "Select a model..." 
+  placeholder = "选择LLM模型..." 
 }: ModelSelectorProps) {
   const [open, setOpen] = React.useState(false)
 
@@ -44,7 +42,7 @@ export function ModelSelector({
         >
           <span className="text-subtitle">
             {value
-              ? models.find((model) => model.model_name === value)?.display_name
+              ? value.display_name
               : placeholder}
           </span>
           <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0" />
@@ -52,19 +50,19 @@ export function ModelSelector({
       </PopoverTrigger>
       <PopoverContent className="w-full min-w-[300px] p-0">
         <Command>
-          <CommandInput placeholder="Search model..." className="h-9" />
+          <CommandInput placeholder="搜索模型..." className="h-9" />
           <CommandList>
-            <CommandEmpty>No model found.</CommandEmpty>
+            <CommandEmpty>没有找到匹配的模型。</CommandEmpty>
             <CommandGroup>
-              {models.map((model) => (
+              {apiModels.map((model) => (
                 <CommandItem
                   key={model.model_name}
                   value={model.model_name}
                   onSelect={(currentValue) => {
-                    if (currentValue === value) {
+                    if (currentValue === value?.model_name) {
                       onChange(null);
                     } else {
-                      const selectedModel = models.find(m => m.model_name === currentValue);
+                      const selectedModel = apiModels.find(m => m.model_name === currentValue);
                       if (selectedModel) {
                         onChange(selectedModel);
                       }
@@ -79,7 +77,7 @@ export function ModelSelector({
                   <Check
                     className={cn(
                       "ml-auto",
-                      value === model.model_name ? "opacity-100" : "opacity-0"
+                      value?.model_name === model.model_name ? "opacity-100" : "opacity-0"
                     )}
                   />
                 </CommandItem>

@@ -27,20 +27,79 @@ const apiClient = axios.create({
   baseURL: '/api',
 });
 
+export interface TradingEvent {
+  agent: string;
+  ticker: string | null;
+  status: string;
+  message?: string;
+  analysis?: string;
+  timestamp: string;
+}
+
+export interface EventSourceCallback {
+  (event: TradingEvent): void;
+}
+
 export const tradingApi = {
   getAvailableModels: async (): Promise<ModelConfig[]> => {
     const response = await apiClient.get('/trading/models');
     return response.data;
   },
 
-  runBacktest: async (config: BacktestConfig): Promise<BacktestResult> => {
-    const response = await apiClient.post('/trading/backtest', config);
-    return response.data;
+  simulateTrading: async (config: { tickers: string[]; show_reasoning: boolean }, onEvent: EventSourceCallback): Promise<EventSource> => {
+    const params = new URLSearchParams({
+      tickers: config.tickers.join(','),
+      show_reasoning: String(config.show_reasoning),
+    });
+
+    const eventSource = new EventSource(`${API_BASE_URL}/api/trading/simulate?${params}`);
+    
+    eventSource.onmessage = (event) => {
+      const data = JSON.parse(event.data);
+      onEvent(data);
+    };
+
+    return eventSource;
   },
 
-  startHedgeFund: async (config: HedgeFundConfig): Promise<HedgeFundStatus> => {
-    const response = await apiClient.post('/trading/start', config);
-    return response.data;
+  runBacktest: async (config: BacktestConfig, onEvent: EventSourceCallback): Promise<EventSource> => {
+    const params = new URLSearchParams({
+      tickers: config.tickers.join(','),
+      start_date: config.start_date,
+      end_date: config.end_date,
+      initial_cash: String(config.initial_cash),
+      margin_requirement: String(config.margin_requirement),
+      use_ollama: String(config.use_ollama || false),
+    });
+
+    const eventSource = new EventSource(`${API_BASE_URL}/api/trading/backtest?${params}`);
+    
+    eventSource.onmessage = (event) => {
+      const data = JSON.parse(event.data);
+      onEvent(data);
+    };
+
+    return eventSource;
+  },
+
+  runHedgeFund: async (config: HedgeFundConfig, onEvent: EventSourceCallback): Promise<EventSource> => {
+    const params = new URLSearchParams({
+      tickers: config.tickers.join(','),
+      selected_agents: config.selected_agents.join(','),
+      model_name: config.model_name,
+      model_provider: config.model_provider,
+      initial_cash: String(config.initial_cash),
+      margin_requirement: String(config.margin_requirement),
+    });
+
+    const eventSource = new EventSource(`${API_BASE_URL}/api/hedge-fund/run?${params}`);
+    
+    eventSource.onmessage = (event) => {
+      const data = JSON.parse(event.data);
+      onEvent(data);
+    };
+
+    return eventSource;
   },
 
   getHedgeFundStatus: async (): Promise<HedgeFundStatus> => {

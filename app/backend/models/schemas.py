@@ -1,10 +1,12 @@
 from datetime import datetime, timedelta
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, ConfigDict
 from typing import List, Optional
 from src.llm.models import ModelProvider
 
 
 class AgentModelConfig(BaseModel):
+    model_config = ConfigDict(protected_namespaces=())
+    
     agent_id: str
     model_name: Optional[str] = None
     model_provider: Optional[ModelProvider] = None
@@ -21,12 +23,14 @@ class ErrorResponse(BaseModel):
 
 
 class HedgeFundRequest(BaseModel):
+    model_config = ConfigDict(protected_namespaces=())
+    
     tickers: List[str]
     selected_agents: List[str]
     agent_models: Optional[List[AgentModelConfig]] = None
     end_date: Optional[str] = Field(default_factory=lambda: datetime.now().strftime("%Y-%m-%d"))
     start_date: Optional[str] = None
-    model_name: str = "gpt-4o"
+    model_name: str = "gpt-4"
     model_provider: ModelProvider = ModelProvider.OPENAI
     initial_cash: float = 100000.0
     margin_requirement: float = 0.0

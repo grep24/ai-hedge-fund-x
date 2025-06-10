@@ -1,7 +1,13 @@
+import React, { createContext, useContext, useState } from 'react';
 import { ModelItem } from '@/data/models';
-import { createContext, ReactNode, useCallback, useContext, useState } from 'react';
 
-export type NodeStatus = 'IDLE' | 'IN_PROGRESS' | 'COMPLETE' | 'ERROR';
+interface NodeStatus {
+  status: string;
+  message: string;
+  ticker?: string | null;
+  analysis?: string | null;
+  timestamp?: string;
+}
 
 // Message history item
 export interface MessageItem {
@@ -30,7 +36,7 @@ export interface OutputNodeData {
 
 // Default agent node state
 const DEFAULT_AGENT_NODE_STATE: AgentNodeData = {
-  status: 'IDLE',
+  status: { status: 'IDLE', message: '', ticker: null, analysis: null, timestamp: undefined },
   ticker: null,
   message: '',
   messages: [],
@@ -39,80 +45,51 @@ const DEFAULT_AGENT_NODE_STATE: AgentNodeData = {
 };
 
 interface NodeContextType {
+  agentNodes: Record<string, NodeStatus>;
   agentNodeData: Record<string, AgentNodeData>;
   outputNodeData: OutputNodeData | null;
   agentModels: Record<string, ModelItem | null>;
-  updateAgentNode: (nodeId: string, data: Partial<AgentNodeData> | NodeStatus) => void;
+  updateAgentNode: (agentId: string, status: NodeStatus) => void;
   updateAgentNodes: (nodeIds: string[], status: NodeStatus) => void;
   setOutputNodeData: (data: OutputNodeData) => void;
   setAgentModel: (nodeId: string, model: ModelItem | null) => void;
   getAgentModel: (nodeId: string) => ModelItem | null;
   getAllAgentModels: () => Record<string, ModelItem | null>;
   resetAllNodes: () => void;
+  clearAgentNodes: () => void;
 }
 
-const NodeContext = createContext<NodeContextType | undefined>(undefined);
+const NodeContext = createContext<NodeContextType>({
+  agentNodes: {},
+  agentNodeData: {},
+  outputNodeData: null,
+  agentModels: {},
+  updateAgentNode: () => {},
+  updateAgentNodes: () => {},
+  setOutputNodeData: () => {},
+  setAgentModel: () => {},
+  getAgentModel: () => null,
+  getAllAgentModels: () => {},
+  resetAllNodes: () => {},
+  clearAgentNodes: () => {},
+});
 
-export function NodeProvider({ children }: { children: ReactNode }) {
+export const useNodeContext = () => useContext(NodeContext);
+
+export const NodeProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  const [agentNodes, setAgentNodes] = useState<Record<string, NodeStatus>>({});
   const [agentNodeData, setAgentNodeData] = useState<Record<string, AgentNodeData>>({});
   const [outputNodeData, setOutputNodeData] = useState<OutputNodeData | null>(null);
   const [agentModels, setAgentModels] = useState<Record<string, ModelItem | null>>({});
 
-  const updateAgentNode = useCallback((nodeId: string, data: Partial<AgentNodeData> | NodeStatus) => {
-    // Handle string status shorthand (just passing a status string)
-    if (typeof data === 'string') {
-      setAgentNodeData(prev => {
-        const existingNode = prev[nodeId] || { ...DEFAULT_AGENT_NODE_STATE };
-        return {
-          ...prev,
-          [nodeId]: {
-            ...existingNode,
-            status: data,
-            lastUpdated: Date.now()
-          }
-        };
-      });
-      return;
-    }
+  const updateAgentNode = (agentId: string, status: NodeStatus) => {
+    setAgentNodes((prev) => ({
+      ...prev,
+      [agentId]: status,
+    }));
+  };
 
-    // Handle data object - full update
-    setAgentNodeData(prev => {
-      const existingNode = prev[nodeId] || { ...DEFAULT_AGENT_NODE_STATE };
-      const newMessages = [...existingNode.messages];
-      
-      // Add message to history if it's new based on timestamp
-      if (data.message && data.timestamp !== existingNode.timestamp) {
-        // Get the reasoning for the current ticker if available
-        const ticker = data.ticker || null;
-
-        const messageItem: MessageItem = {
-          timestamp: data.timestamp || new Date().toISOString(),
-          message: data.message,
-          ticker: ticker,
-          analysis: {} as Record<string, string>,
-        }
-
-        // Add analysis for ticker to messageItem if ticker is not null
-        if (ticker && data.analysis) {
-          messageItem.analysis[ticker] = data.analysis;
-        }
-
-        newMessages.push(messageItem);
-      }
-      
-      return {
-        ...prev,
-        [nodeId]: {
-          ...existingNode,
-          ...data,
-          messages: newMessages,
-          lastUpdated: Date.now()
-        }
-      };
-    });
-  }, []);
-
-  const updateAgentNodes = useCallback((nodeIds: string[], status: NodeStatus) => {
+  const updateAgentNodes = (nodeIds: string[], status: NodeStatus) => {
     if (nodeIds.length === 0) return;
     
     setAgentNodeData(prev => {
@@ -120,7 +97,7 @@ export function NodeProvider({ children }: { children: ReactNode }) {
       
       nodeIds.forEach(id => {
         newStates[id] = {
-          ...(newStates[id] || { ...DEFAULT_AGENT_NODE_STATE }),
+          ...(newStates[id] || { ...DEFAULT_AGENT_NODE_STATE.status }),
           status,
           lastUpdated: Date.now()
         };
@@ -128,9 +105,9 @@ export function NodeProvider({ children }: { children: ReactNode }) {
       
       return newStates;
     });
-  }, []);
+  };
 
-  const setAgentModel = useCallback((nodeId: string, model: ModelItem | null) => {
+  const setAgentModel = (nodeId: string, model: ModelItem | null) => {
     setAgentModels(prev => {
       if (model === null) {
         // Remove the agent model if setting to null
@@ -144,48 +121,42 @@ export function NodeProvider({ children }: { children: ReactNode }) {
         };
       }
     });
-  }, []);
+  };
 
-  const getAgentModel = useCallback((nodeId: string): ModelItem | null => {
+  const getAgentModel = (nodeId: string): ModelItem | null => {
     return agentModels[nodeId] || null;
-  }, [agentModels]);
+  };
 
-  const getAllAgentModels = useCallback((): Record<string, ModelItem | null> => {
+  const getAllAgentModels = (): Record<string, ModelItem | null> => {
     return agentModels;
-  }, [agentModels]);
+  };
 
-  const resetAllNodes = useCallback(() => {
+  const resetAllNodes = () => {
     setAgentNodeData({});
     setOutputNodeData(null);
     // Note: We don't reset agentModels here as users would want to keep their model selections
-  }, []);
+  };
+
+  const clearAgentNodes = () => {
+    setAgentNodes({});
+  };
 
   return (
-    <NodeContext.Provider
-      value={{
-        agentNodeData,
-        outputNodeData,
-        agentModels,
-        updateAgentNode,
-        updateAgentNodes,
-        setOutputNodeData,
-        setAgentModel,
-        getAgentModel,
-        getAllAgentModels,
-        resetAllNodes,
-      }}
-    >
+    <NodeContext.Provider value={{
+      agentNodes,
+      agentNodeData,
+      outputNodeData,
+      agentModels,
+      updateAgentNode,
+      updateAgentNodes,
+      setOutputNodeData,
+      setAgentModel,
+      getAgentModel,
+      getAllAgentModels,
+      resetAllNodes,
+      clearAgentNodes,
+    }}>
       {children}
     </NodeContext.Provider>
   );
-}
-
-export function useNodeContext() {
-  const context = useContext(NodeContext);
-  
-  if (context === undefined) {
-    throw new Error('useNodeContext must be used within a NodeProvider');
-  }
-  
-  return context;
-} 
+}; 
