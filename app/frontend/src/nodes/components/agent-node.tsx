@@ -1,4 +1,4 @@
-import { type NodeProps } from '@xyflow/react';
+import { type NodeProps } from 'reactflow';
 import { Bot } from 'lucide-react';
 import { useEffect, useState } from 'react';
 

@@ -10,10 +10,10 @@ import {
   addEdge,
   useEdgesState,
   useNodesState
-} from '@xyflow/react';
+} from 'reactflow';
 import { useCallback, useState } from 'react';
 
-import '@xyflow/react/dist/style.css';
+import 'reactflow/dist/style.css';
 
 import { AppNode } from '@/nodes/types';
 import { edgeTypes } from '../edges';

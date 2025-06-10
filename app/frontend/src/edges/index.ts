@@ -1,4 +1,4 @@
-import type { EdgeTypes } from '@xyflow/react';
+import type { EdgeTypes } from 'reactflow';
 
 
 export const edgeTypes = {

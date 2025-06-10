@@ -1,5 +1,5 @@
 import { ModelSelector } from '@/components/ui/llm-selector';
-import { getConnectedEdges, useReactFlow, type NodeProps } from '@xyflow/react';
+import { getConnectedEdges, useReactFlow, type NodeProps } from 'reactflow';
 import { Bot, Loader2, Play } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
 

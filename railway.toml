@@ -4,7 +4,7 @@ buildCommand = "curl -fsSL https://deb.nodesource.com/setup_20.x | bash - && apt
 
 [deploy]
 startCommand = "chmod +x start.sh && ./start.sh"
-healthcheckPath = "/api/monitoring/health"
+healthcheckPath = "/api/health"
 healthcheckTimeout = 100
 restartPolicy = "on-failure"
 maxRetries = 5

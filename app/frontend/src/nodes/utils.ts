@@ -1,4 +1,4 @@
-import { type Edge, type Node, getConnectedEdges } from '@xyflow/react';
+import { type Edge, type Node, getConnectedEdges } from 'reactflow';
 
 export type NodeStatus = 'IDLE' | 'IN_PROGRESS' | 'COMPLETE' | 'ERROR';
 

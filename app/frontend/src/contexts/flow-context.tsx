@@ -1,6 +1,6 @@
 import { getMultiNodeDefinition, isMultiNodeComponent } from '@/data/multi-node-mappings';
 import { getNodeIdForComponent, getNodeTypeDefinition } from '@/data/node-mappings';
-import { useReactFlow, XYPosition } from '@xyflow/react';
+import { useReactFlow, XYPosition } from 'reactflow';
 import { createContext, ReactNode, useCallback, useContext } from 'react';
 
 interface FlowContextType {

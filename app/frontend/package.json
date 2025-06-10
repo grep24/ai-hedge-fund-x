@@ -10,7 +10,8 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "@xyflow/react": "^11.10.1",
+    "reactflow": "^11.10.1",
+    "@types/reactflow": "^11.10.1",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "react-syntax-highlighter": "^15.5.0",
@@ -24,7 +25,10 @@
     "lucide-react": "^0.358.0",
     "next-themes": "^0.2.1",
     "tailwind-merge": "^2.2.1",
-    "tailwindcss-animate": "^1.0.7"
+    "tailwindcss-animate": "^1.0.7",
+    "strip-ansi": "^7.1.0",
+    "string-width": "^5.1.2",
+    "wrap-ansi": "^8.1.0"
   },
   "devDependencies": {
     "@types/node": "^20.11.25",

@@ -1,4 +1,4 @@
-import { type NodeTypes } from '@xyflow/react';
+import { type NodeTypes } from 'reactflow';
 
 import { AgentNode } from './components/agent-node';
 import { JsonOutputNode } from './components/json-output-node';

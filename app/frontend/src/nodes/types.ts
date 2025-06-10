@@ -1,5 +1,5 @@
 import { MessageItem } from '@/contexts/node-context';
-import type { BuiltInNode, Node } from '@xyflow/react';
+import type { BuiltInNode, Node } from 'reactflow';
 
 export type NodeMessage = MessageItem;
 

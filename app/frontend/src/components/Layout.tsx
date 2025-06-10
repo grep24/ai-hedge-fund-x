@@ -1,7 +1,7 @@
 import { SidebarProvider } from '@/components/ui/sidebar';
 import { FlowProvider } from '@/contexts/flow-context';
 import { cn } from '@/lib/utils';
-import { ReactFlowProvider } from '@xyflow/react';
+import { ReactFlowProvider } from 'reactflow';
 import { PanelLeft } from 'lucide-react';
 import { ReactNode, useState } from 'react';
 import { LeftSidebar } from './sidebar/left-sidebar';

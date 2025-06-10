@@ -1,6 +1,6 @@
 import { Card, CardHeader } from '@/components/ui/card';
 import { cn } from '@/lib/utils';
-import { Handle, Position } from '@xyflow/react';
+import { Handle, Position } from 'reactflow';
 import { ReactNode } from 'react';
 
 export interface NodeShellProps {
