@@ -10,7 +10,7 @@ root_dir = os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(__fil
 sys.path.append(root_dir)
 
 from src.main import run_hedge_fund
-from src.backtester import run_backtest
+from src.backtester import Backtester
 
 router = APIRouter()
 
@@ -76,14 +76,29 @@ async def simulate_trading(request: TradingRequest):
 @router.post("/backtest")
 async def run_backtest_endpoint(request: BacktestRequest):
     try:
-        result = run_backtest(
+        # 创建Backtester实例
+        backtester = Backtester(
+            agent=run_hedge_fund,
             tickers=request.tickers,
             start_date=request.start_date,
             end_date=request.end_date,
-            initial_cash=request.initial_cash,
-            margin_requirement=request.margin_requirement,
-            use_ollama=request.use_ollama
+            initial_capital=request.initial_cash,
+            initial_margin_requirement=request.margin_requirement,
+            model_name="gpt-4o" if not request.use_ollama else "llama2",
+            model_provider="OpenAI" if not request.use_ollama else "Ollama"
         )
-        return result
+        
+        # 运行回测
+        backtester.prefetch_data()  # 预加载数据
+        result = backtester.run_backtest()  # 执行回测
+        
+        # 分析性能
+        performance = backtester.analyze_performance()
+        
+        # 合并结果
+        return {
+            "backtest_results": result,
+            "performance_metrics": performance
+        }
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e)) 
