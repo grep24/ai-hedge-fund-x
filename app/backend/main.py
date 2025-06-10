@@ -1,5 +1,6 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.staticfiles import StaticFiles
 import sys
 import os
 import datetime
@@ -24,7 +25,12 @@ app.add_middleware(
 # 注册路由
 app.include_router(trading.router, prefix="/api/trading", tags=["trading"])
 
-@app.get("/")
+# 配置静态文件服务
+frontend_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), "frontend", "dist")
+if os.path.exists(frontend_path):
+    app.mount("/", StaticFiles(directory=frontend_path, html=True), name="frontend")
+
+@app.get("/api")
 async def root():
     """
     健康检查端点 - 返回服务状态和版本信息

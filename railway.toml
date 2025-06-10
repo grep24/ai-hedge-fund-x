@@ -1,6 +1,6 @@
 [build]
 builder = "nixpacks"
-buildCommand = "poetry install --no-dev --no-interaction"
+buildCommand = "curl -fsSL https://deb.nodesource.com/setup_20.x | bash - && apt-get install -y nodejs && poetry install --no-dev --no-interaction"
 
 [deploy]
 startCommand = "chmod +x start.sh && ./start.sh"
@@ -13,4 +13,5 @@ maxRetries = 5
 PYTHONPATH = "/app"
 PYTHONUNBUFFERED = "1"
 PORT = "8000"
-PYTHON_VERSION = "3.11.7" 
+PYTHON_VERSION = "3.11.7"
+NODE_VERSION = "20.x" 

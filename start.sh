@@ -38,6 +38,13 @@ poetry show
 echo "Checking src directory..."
 ls -la src/
 
+# 构建前端
+echo "Building frontend..."
+cd /app/app/frontend
+npm install
+npm run build
+cd /app
+
 # 等待数据库和其他服务（如果有的话）
 echo "Waiting for services to be ready..."
 sleep 5
