@@ -4,12 +4,11 @@ import { AgentNode } from './components/agent-node';
 import { JsonOutputNode } from './components/json-output-node';
 import { PortfolioManagerNode } from './components/portfolio-manager-node';
 import { TextOutputNode } from './components/text-output-node';
-import { type AppNode } from './types';
 
 // Types
 export * from './types';
 
-export const initialNodes: AppNode[] = [
+export const initialNodes: any[] = [
   {
     id: 'portfolio-manager-node',
     type: 'portfolio-manager-node',

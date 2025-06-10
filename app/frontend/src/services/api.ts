@@ -1,7 +1,7 @@
 import { OutputNodeData, useNodeContext, NodeStatus } from '@/contexts/node-context';
 import { ModelProvider } from '@/services/types';
 import axios from 'axios';
-import type { BacktestConfig, BacktestResult, HedgeFundConfig, HedgeFundStatus, ModelConfig } from '../types';
+import type { BacktestConfig, HedgeFundConfig, HedgeFundStatus, ModelConfig } from '../types';
 
 interface AgentModelConfig {
   agent_id: string;

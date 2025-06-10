@@ -20,7 +20,6 @@ export const HedgeFundRunner: React.FC<HedgeFundRunnerProps> = ({ onComplete }) 
   const { updateAgentNode } = useNodeContext();
   const [selectedModel, setSelectedModel] = useState<ModelItem | null>(null);
   const [selectedAgents, setSelectedAgents] = useState<AgentItem[]>([]);
-  const [apiModels, setApiModels] = useState<ModelItem[]>([]);
 
   const handleModelChange = (model: ModelItem | null) => {
     setSelectedModel(model);
@@ -74,7 +73,7 @@ export const HedgeFundRunner: React.FC<HedgeFundRunnerProps> = ({ onComplete }) 
       });
 
       // 监听错误
-      eventSource.addEventListener('error', (event: any) => {
+      eventSource.addEventListener('error', () => {
         setError('运行对冲基金策略过程中发生错误');
         setLoading(false);
         eventSource.close();

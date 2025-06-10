@@ -36,8 +36,8 @@ export function JsonOutputNode({
         selected={selected}
         isConnectable={isConnectable}
         icon={<FileJson className="h-5 w-5" />}
-        name={data?.name || "JSON Output"}
-        description={data?.description || "View analysis results in JSON format"}
+        name={(data as any)?.name || "JSON Output"}
+        description={(data as any)?.description || "View analysis results in JSON format"}
         hasRightHandle={false}
       >
         <CardContent className="p-0">

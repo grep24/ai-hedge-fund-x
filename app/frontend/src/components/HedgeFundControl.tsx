@@ -34,7 +34,7 @@ export const HedgeFundControl: React.FC = () => {
         show_reasoning: true,
       };
       
-      const eventSource = await tradingApi.runHedgeFund(config, (event) => {
+      await tradingApi.runHedgeFund(config, (event) => {
         console.log('Hedge fund event:', event);
       });
       

@@ -34,7 +34,7 @@ export const Home: React.FC = () => {
                   <TradingSimulator onComplete={handleTradingComplete} />
                 </TabPane>
                 <TabPane tab="策略回测" key="backtest">
-                  <BacktestRunner onComplete={handleBacktestComplete} />
+                  <BacktestRunner />
                 </TabPane>
                 <TabPane tab="对冲基金" key="hedge-fund">
                   <HedgeFundRunner onComplete={handleTradingComplete} />
@@ -55,22 +55,21 @@ export const Home: React.FC = () => {
               <Card title="回测结果" className="mb-4">
                 <div className="grid grid-cols-2 gap-4">
                   <div>
-                    <h3 className="text-lg font-semibold mb-2">性能指标</h3>
-                    <ul>
-                      <li>总收益率: {(backtestResult.performance_metrics.total_return * 100).toFixed(2)}%</li>
-                      <li>年化收益率: {(backtestResult.performance_metrics.annualized_return * 100).toFixed(2)}%</li>
-                      <li>夏普比率: {backtestResult.performance_metrics.sharpe_ratio.toFixed(2)}</li>
-                      <li>最大回撤: {(backtestResult.performance_metrics.max_drawdown * 100).toFixed(2)}%</li>
-                      <li>胜率: {(backtestResult.performance_metrics.win_rate * 100).toFixed(2)}%</li>
-                      <li>盈亏比: {backtestResult.performance_metrics.profit_factor.toFixed(2)}</li>
+                    <h3 className="text-lg font-semibold mb-2">绩效指标</h3>
+                    <ul className="list-disc list-inside">
+                      <li>总收益率: {(backtestResult.metrics.total_return * 100).toFixed(2)}%</li>
+                      <li>夏普比率: {backtestResult.metrics.sharpe_ratio.toFixed(2)}</li>
+                      <li>最大回撤: {(backtestResult.metrics.max_drawdown * 100).toFixed(2)}%</li>
+                      <li>胜率: {(backtestResult.metrics.win_rate * 100).toFixed(2)}%</li>
+                      <li>盈亏比: {backtestResult.metrics.profit_factor.toFixed(2)}</li>
                     </ul>
                   </div>
                   <div>
                     <h3 className="text-lg font-semibold mb-2">最近交易</h3>
-                    <ul>
-                      {backtestResult.backtest_results.trades.slice(-5).map((trade, index) => (
+                    <ul className="list-disc list-inside">
+                      {backtestResult.trades.slice(-5).map((trade: any, index: any) => (
                         <li key={index}>
-                          {trade.date}: {trade.action} {trade.ticker} x{trade.quantity} @${trade.price}
+                          {trade.date}: {trade.action} {trade.shares} 股 {trade.ticker} @ ${trade.price.toFixed(2)}
                         </li>
                       ))}
                     </ul>

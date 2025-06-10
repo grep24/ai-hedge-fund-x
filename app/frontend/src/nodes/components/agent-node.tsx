@@ -58,9 +58,10 @@ export function AgentNode({
       isConnectable={isConnectable}
       icon={<Bot className="h-5 w-5" />}
       iconColor={getStatusColor(status)}
-      name={data.name || "Agent"}
-      description={data.description}
+      name={(data as any)?.name || "Agent"}
+      description={(data as any)?.description}
       status={status}
+      hasRightHandle={false}
     >
       <CardContent className="p-0">
         <div className="border-t border-border p-3">
@@ -116,10 +117,10 @@ export function AgentNode({
             </Accordion>
           </div>
         </div>
-        <AgentOutputDialog
-          isOpen={isDialogOpen}
-          onOpenChange={setIsDialogOpen}
-          name={data.name || "Agent"}
+        <AgentOutputDialog 
+          isOpen={isDialogOpen} 
+          onOpenChange={setIsDialogOpen} 
+          name={(data as any)?.name || "Agent"}
           nodeId={id}
         />
       </CardContent>

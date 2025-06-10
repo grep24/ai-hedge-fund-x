@@ -14,7 +14,6 @@ import { useCallback, useState } from 'react';
 
 import 'reactflow/dist/style.css';
 
-import { AppNode } from '@/nodes/types';
 import { edgeTypes } from '../edges';
 import { initialNodes, nodeTypes } from '../nodes';
 import { Button } from './ui/button';

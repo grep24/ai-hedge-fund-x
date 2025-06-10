@@ -134,8 +134,8 @@ export function PortfolioManagerNode({
         selected={selected}
         isConnectable={isConnectable}
         icon={<Bot className="h-5 w-5" />}
-        name={data.name || "Custom Component"}
-        description={data.description}
+        name={(data as any)?.name || "Custom Component"}
+        description={(data as any)?.description}
         hasLeftHandle={false}
       >
         <CardContent className="p-0">
