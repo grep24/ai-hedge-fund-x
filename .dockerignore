@@ -65,7 +65,7 @@ site/
 
 # Misc
 .DS_Store
-Thumbs.db
+Thumbs.db 
 
 # Don't ignore frontend dist
 !app/frontend/dist/ 
