@@ -1,18 +1,16 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
-
-import App from './App';
-import { NodeProvider } from './contexts/node-context';
-import { ThemeProvider } from './providers/theme-provider';
+import { ConfigProvider } from 'antd';
+import zhCN from 'antd/locale/zh_CN';
+import Home from './pages/Home';
+import 'antd/dist/reset.css';
 
 import './index.css';
 
 ReactDOM.createRoot(document.getElementById('root')!).render(
   <React.StrictMode>
-    <ThemeProvider>
-      <NodeProvider>
-        <App />
-      </NodeProvider>
-    </ThemeProvider>
+    <ConfigProvider locale={zhCN}>
+      <Home />
+    </ConfigProvider>
   </React.StrictMode>
 );
