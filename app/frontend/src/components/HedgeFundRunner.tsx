@@ -1,12 +1,11 @@
 import React, { useState } from 'react';
-import { Card, Form, Input, Button, Space, Alert, Spin, InputNumber } from 'antd';
+import { Card, Form, Input, Button, Space, Alert, Spin, InputNumber, Select } from 'antd';
 import { tradingApi } from '@/services/api';
 import { useNodeContext, NodeStatus } from '@/contexts/node-context';
-import { ModelSelector } from '@/components/ui/llm-selector';
-import { AgentSelector } from '@/components/AgentSelector';
 import type { ModelItem } from '@/data/models';
 import type { AgentItem } from '@/data/agents';
 import { apiModels, defaultModel } from '@/data/models';
+import { AgentSelector } from '@/components/AgentSelector';
 import type { HedgeFundConfig } from '@/types';
 
 interface HedgeFundRunnerProps {
@@ -106,11 +105,19 @@ export const HedgeFundRunner: React.FC<HedgeFundRunnerProps> = ({ onComplete }) 
           label="Model"
           rules={[{ required: true, message: 'Please select a model' }]}
         >
-          <ModelSelector
-            models={apiModels}
-            value={selectedModel?.model_name || ''}
-            onChange={setSelectedModel}
+          <Select
+            value={selectedModel?.model_name}
+            onChange={val => setSelectedModel(apiModels.find(m => m.model_name === val) || null)}
             placeholder="Select a model..."
+            options={apiModels.map(m => ({
+              label: `${m.display_name} (${m.provider})`,
+              value: m.model_name
+            }))}
+            style={{ width: '100%' }}
+            showSearch
+            filterOption={(input, option) =>
+              (option?.label as string).toLowerCase().includes(input.toLowerCase())
+            }
           />
         </Form.Item>
 
