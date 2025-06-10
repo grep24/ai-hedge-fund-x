@@ -20,6 +20,6 @@ maxRetries = 5
 [env]
 PYTHONPATH = "/app"
 PYTHONUNBUFFERED = "1"
-PORT = "8000"
+PORT = "8080"
 PYTHON_VERSION = "3.11.7"
 NODE_VERSION = "20.x" 

@@ -13,6 +13,10 @@ env
 export PYTHONPATH=/app
 echo "PYTHONPATH set to: $PYTHONPATH"
 
+# 使用Railway提供的PORT，如果没有则默认8080
+PORT=${PORT:-8080}
+echo "Using PORT: $PORT"
+
 # 显示当前目录结构
 echo "Current directory structure:"
 pwd
