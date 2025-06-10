@@ -10,7 +10,7 @@ import logging
 root_dir = os.path.dirname(os.path.dirname(os.path.dirname(__file__)))
 sys.path.append(root_dir)
 
-from app.backend.routes import trading, hedge_fund, monitoring
+from app.backend.routes import trading, hedge_fund, monitoring, health
 from .middleware.error_handler import error_handler
 from .middleware.monitoring import monitoring_middleware
 
@@ -40,23 +40,10 @@ app.add_middleware(
 )
 
 # 注册路由
+app.include_router(health.router, prefix="/api/health", tags=["health"])
 app.include_router(trading.router, prefix="/api/trading", tags=["trading"])
 app.include_router(hedge_fund.router, prefix="/api/hedge-fund", tags=["hedge-fund"])
 app.include_router(monitoring.router, prefix="/api/monitoring", tags=["monitoring"])
-
-@app.get("/health")
-async def health_check():
-    """
-    详细的健康检查端点
-    """
-    return {
-        "status": "healthy",
-        "service": "ai-hedge-fund-api",
-        "version": "0.1.0",
-        "timestamp": datetime.datetime.utcnow().isoformat(),
-        "python_version": sys.version,
-        "environment": os.getenv("ENVIRONMENT", "production")
-    }
 
 @app.get("/")
 async def root():
