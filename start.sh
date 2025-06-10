@@ -40,9 +40,9 @@ ls -la src/
 
 # 等待数据库和其他服务（如果有的话）
 echo "Waiting for services to be ready..."
-sleep 15
+sleep 5
 
 # 启动应用
 echo "Starting application..."
 cd /app
-exec poetry run uvicorn app.backend.main:app --host 0.0.0.0 --port $PORT --log-level debug --reload --workers 1 --timeout-keep-alive 75 --reload-dir /app/src 
+exec poetry run uvicorn app.backend.main:app --host 0.0.0.0 --port $PORT --log-level info --workers 1 --timeout-keep-alive 75 

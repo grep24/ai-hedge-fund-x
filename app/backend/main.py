@@ -26,8 +26,26 @@ app.include_router(trading.router, prefix="/api/trading", tags=["trading"])
 
 @app.get("/")
 async def root():
-    return {"status": "ok"}
+    """
+    健康检查端点 - 返回服务状态和版本信息
+    """
+    return {
+        "status": "healthy",
+        "service": "ai-hedge-fund-api",
+        "version": "0.1.0",
+        "timestamp": datetime.datetime.utcnow().isoformat()
+    }
 
 @app.get("/health")
 async def health_check():
-    return {"status": "ok"}
+    """
+    详细的健康检查端点
+    """
+    return {
+        "status": "healthy",
+        "service": "ai-hedge-fund-api",
+        "version": "0.1.0",
+        "timestamp": datetime.datetime.utcnow().isoformat(),
+        "python_version": sys.version,
+        "environment": os.getenv("ENVIRONMENT", "production")
+    }

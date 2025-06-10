@@ -4,13 +4,13 @@ buildCommand = "poetry install --no-dev --no-interaction"
 
 [deploy]
 startCommand = "chmod +x start.sh && ./start.sh"
-healthcheckPath = "/"
-healthcheckTimeout = 600
+healthcheckPath = "/health"
+healthcheckTimeout = 100
 restartPolicy = "on-failure"
-maxRetries = 10
+maxRetries = 5
 
 [env]
 PYTHONPATH = "/app"
 PYTHONUNBUFFERED = "1"
 PORT = "8000"
-PYTHON_VERSION = "3.11" 
+PYTHON_VERSION = "3.11.7" 
