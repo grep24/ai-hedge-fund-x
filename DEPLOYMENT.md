@@ -1,10 +1,17 @@
 # Railway部署指南
 
+## 部署架构简化
+
+我们已经简化了部署流程：
+- 使用 `requirements.txt` 替代 Poetry
+- 直接使用 Procfile 启动应用
+- 使用构建脚本处理前端
+
 ## 部署前准备
 
-### 1. 创建环境变量文件
+### 1. 设置环境变量
 
-在项目根目录创建 `.env` 文件，包含以下内容：
+在Railway项目中设置以下环境变量：
 
 ```env
 # AI模型API密钥（至少需要一个）
@@ -14,16 +21,12 @@ GROQ_API_KEY=your_groq_api_key_here
 DEEPSEEK_API_KEY=your_deepseek_api_key_here
 GOOGLE_API_KEY=your_google_api_key_here
 
-# 金融数据API（可选，用于获取股票数据）
+# 金融数据API（可选）
 FINANCIAL_DATASETS_API_KEY=your_financial_datasets_api_key_here
 
 # Ollama配置（如果使用本地模型）
 OLLAMA_BASE_URL=http://localhost:11434
 ```
-
-### 2. 在Railway中设置环境变量
-
-在Railway项目设置中添加相同的环境变量。
 
 ## 部署步骤
 
@@ -31,7 +34,7 @@ OLLAMA_BASE_URL=http://localhost:11434
 
 ```bash
 git add .
-git commit -m "准备Railway部署"
+git commit -m "简化Railway部署配置"
 git push origin main
 ```
 
@@ -41,19 +44,27 @@ git push origin main
 2. 创建新项目
 3. 选择"Deploy from GitHub repo"
 4. 选择您的仓库
-5. Railway会自动检测到 `railway.toml` 配置文件
 
-### 3. 配置环境变量
+### 3. Railway会自动：
 
-在Railway项目的Variables设置中添加所有必需的环境变量。
+1. 检测到 `requirements.txt` 并安装Python依赖
+2. 检测到 `package.json` 并构建前端
+3. 使用 `Procfile` 启动应用
 
-### 4. 部署
+## 文件结构说明
 
-Railway会自动开始部署流程：
-- 安装Python依赖（使用Poetry）
-- 安装Node.js和前端依赖
-- 构建前端应用
-- 启动FastAPI后端服务
+```
+ai-hedge-fund-x/
+├── requirements.txt      # Python依赖
+├── package.json         # 前端构建脚本
+├── build.sh            # 前端构建脚本
+├── Procfile            # 启动命令
+├── railway.toml        # Railway配置
+├── app/
+│   ├── backend/        # FastAPI后端
+│   └── frontend/       # React前端
+└── src/                # AI交易逻辑
+```
 
 ## 验证部署
 
@@ -66,8 +77,7 @@ Railway会自动开始部署流程：
 {
   "status": "healthy",
   "service": "ai-hedge-fund-api",
-  "version": "0.1.0",
-  ...
+  "version": "0.1.0"
 }
 ```
 
@@ -79,29 +89,38 @@ Railway会自动开始部署流程：
 
 ## 故障排查
 
-### 常见问题
-
-1. **前端无法加载**
-   - 检查前端是否成功构建
-   - 查看Railway构建日志
-
-2. **API请求失败**
-   - 检查环境变量是否正确设置
-   - 查看Railway运行日志
-
-3. **AI模型无法使用**
-   - 确保至少设置了一个AI模型的API密钥
-   - 检查API密钥是否有效
-
 ### 日志查看
 
-在Railway控制台中可以查看：
-- 构建日志
-- 部署日志
-- 应用运行日志
+在Railway控制台查看：
+- **Build Logs**：构建过程日志
+- **Deploy Logs**：运行时日志
 
-## 注意事项
+### 常见问题
 
-1. **API密钥安全**：不要将API密钥提交到Git仓库
-2. **资源限制**：注意Railway的免费层限制
-3. **并发请求**：生产环境可能需要调整worker数量 
+1. **构建失败**
+   - 检查 `requirements.txt` 中的依赖版本
+   - 确保Python版本为3.11
+
+2. **前端无法加载**
+   - 检查 `build.sh` 是否成功执行
+   - 查看 `app/frontend/dist` 目录是否存在
+
+3. **API密钥错误**
+   - 确保在Railway中设置了环境变量
+   - 至少需要一个AI模型的API密钥
+
+## 本地测试
+
+```bash
+# 安装依赖
+pip install -r requirements.txt
+
+# 构建前端
+chmod +x build.sh
+./build.sh
+
+# 启动应用
+uvicorn app.backend.main:app --host 0.0.0.0 --port 8000
+```
+
+访问 http://localhost:8000 

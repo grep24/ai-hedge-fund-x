@@ -1,17 +1,8 @@
 [build]
 builder = "nixpacks"
-buildCommand = """
-curl -fsSL https://deb.nodesource.com/setup_20.x | bash - && \
-apt-get install -y nodejs && \
-poetry install --no-dev --no-interaction && \
-cd app/frontend && \
-npm install --no-audit --no-fund && \
-npm run build && \
-cd /app
-"""
 
 [deploy]
-startCommand = "chmod +x start.sh && ./start.sh"
+startCommand = "uvicorn app.backend.main:app --host 0.0.0.0 --port $PORT"
 healthcheckPath = "/api/health"
 healthcheckTimeout = 100
 restartPolicy = "on-failure"
@@ -20,6 +11,4 @@ maxRetries = 5
 [env]
 PYTHONPATH = "/app"
 PYTHONUNBUFFERED = "1"
-PORT = "8080"
-PYTHON_VERSION = "3.11.7"
-NODE_VERSION = "20.x" 
+NIXPACKS_PYTHON_VERSION = "3.11" 
