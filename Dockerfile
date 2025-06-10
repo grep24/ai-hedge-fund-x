@@ -1,13 +1,17 @@
-# 使用官方Python运行时作为基础镜像
-FROM python:3.11-slim
+# 阶段1: 构建前端
+FROM node:20-slim AS frontend-builder
 
-# 安装Node.js
-RUN apt-get update && apt-get install -y \
-    curl \
-    && curl -fsSL https://deb.nodesource.com/setup_20.x | bash - \
-    && apt-get install -y nodejs \
-    && apt-get clean \
-    && rm -rf /var/lib/apt/lists/*
+WORKDIR /app
+
+# 复制前端相关文件
+COPY package.json build.sh ./
+COPY app/frontend ./app/frontend
+
+# 构建前端
+RUN chmod +x build.sh && ./build.sh
+
+# 阶段2: 最终镜像
+FROM python:3.11-slim
 
 # 设置工作目录
 WORKDIR /app
@@ -16,22 +20,14 @@ WORKDIR /app
 COPY requirements.txt .
 
 # 安装Python依赖
-RUN pip install --no-cache-dir -r requirements.txt
+RUN pip install --no-cache-dir --upgrade pip && \
+    pip install --no-cache-dir -r requirements.txt
 
-# 复制package.json和build脚本
-COPY package.json build.sh ./
+# 从构建阶段复制前端构建结果
+COPY --from=frontend-builder /app/app/frontend/dist ./app/frontend/dist
 
-# 复制前端源代码
-COPY app/frontend ./app/frontend
-
-# 构建前端
-RUN chmod +x build.sh && ./build.sh
-
-# 复制后端和其他源代码
+# 复制应用代码
 COPY . .
-
-# 暴露端口
-EXPOSE 8080
 
 # 设置环境变量
 ENV PYTHONPATH=/app

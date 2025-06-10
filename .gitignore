@@ -199,9 +199,9 @@ Desktop.ini
 *.swo
 *~
 
-# Frontend build
-app/frontend/dist/
-app/frontend/build/
+# Frontend build - 临时允许提交以解决Railway内存问题
+# app/frontend/dist/
+# app/frontend/build/
 
 # Temporary files
 *.tmp
@@ -215,3 +215,7 @@ debug_*.py
 # Poetry files (we're using requirements.txt now)
 poetry.lock
 pyproject.toml
+
+# Docker build files (if building locally)
+Dockerfile.simple
+requirements-minimal.txt
