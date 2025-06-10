@@ -1,6 +1,5 @@
 import {
   Background,
-  ColorMode,
   Connection,
   Controls,
   Edge,
@@ -25,7 +24,6 @@ type FlowProps = {
 };
 
 export function Flow({ className = '' }: FlowProps) {
-  const [colorMode] = useState<ColorMode>('dark');
   const [nodes, setNodes, onNodesChange] = useNodesState<AppNode>(initialNodes);
   const [edges, setEdges, onEdgesChange] = useEdgesState<Edge>([]);
   const [isInitialized, setIsInitialized] = useState(false);
@@ -48,7 +46,7 @@ export function Flow({ className = '' }: FlowProps) {
         markerEnd: {
           type: MarkerType.ArrowClosed,
         },
-      };
+      } as Edge;
       setEdges((eds) => addEdge(newEdge, eds));
     },
     [setEdges]
@@ -71,14 +69,12 @@ export function Flow({ className = '' }: FlowProps) {
         onEdgesChange={onEdgesChange}
         onConnect={onConnect}
         onInit={onInit}
-        colorMode={colorMode}
         proOptions={proOptions}
         fitView
       >
         <Background gap={13}/>
         <Controls 
           position="bottom-center" 
-          orientation="horizontal" 
           style={{ bottom: 20 }}
         />
         <Panel position="top-right">

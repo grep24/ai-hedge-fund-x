@@ -1,8 +1,11 @@
 import React, { createContext, useContext, useState } from 'react';
 import { ModelItem } from '@/data/models';
 
-interface NodeStatus {
-  status: string;
+// Export NodeStatus type from utils
+export type NodeStatus = 'IDLE' | 'IN_PROGRESS' | 'COMPLETE' | 'ERROR';
+
+interface NodeUpdateData {
+  status: NodeStatus;
   message: string;
   ticker?: string | null;
   analysis?: string | null;
@@ -36,7 +39,7 @@ export interface OutputNodeData {
 
 // Default agent node state
 const DEFAULT_AGENT_NODE_STATE: AgentNodeData = {
-  status: { status: 'IDLE', message: '', ticker: null, analysis: null, timestamp: undefined },
+  status: 'IDLE',
   ticker: null,
   message: '',
   messages: [],
@@ -49,7 +52,7 @@ interface NodeContextType {
   agentNodeData: Record<string, AgentNodeData>;
   outputNodeData: OutputNodeData | null;
   agentModels: Record<string, ModelItem | null>;
-  updateAgentNode: (agentId: string, status: NodeStatus) => void;
+  updateAgentNode: (agentId: string, updateData: NodeUpdateData) => void;
   updateAgentNodes: (nodeIds: string[], status: NodeStatus) => void;
   setOutputNodeData: (data: OutputNodeData) => void;
   setAgentModel: (nodeId: string, model: ModelItem | null) => void;
@@ -69,7 +72,7 @@ const NodeContext = createContext<NodeContextType>({
   setOutputNodeData: () => {},
   setAgentModel: () => {},
   getAgentModel: () => null,
-  getAllAgentModels: () => {},
+  getAllAgentModels: () => ({}),
   resetAllNodes: () => {},
   clearAgentNodes: () => {},
 });
@@ -82,10 +85,20 @@ export const NodeProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [outputNodeData, setOutputNodeData] = useState<OutputNodeData | null>(null);
   const [agentModels, setAgentModels] = useState<Record<string, ModelItem | null>>({});
 
-  const updateAgentNode = (agentId: string, status: NodeStatus) => {
+  const updateAgentNode = (agentId: string, updateData: NodeUpdateData) => {
     setAgentNodes((prev) => ({
       ...prev,
-      [agentId]: status,
+      [agentId]: updateData.status,
+    }));
+    
+    // Also update the detailed agent node data
+    setAgentNodeData(prev => ({
+      ...prev,
+      [agentId]: {
+        ...(prev[agentId] || DEFAULT_AGENT_NODE_STATE),
+        ...updateData,
+        lastUpdated: Date.now()
+      }
     }));
   };
 
@@ -97,7 +110,7 @@ export const NodeProvider: React.FC<{ children: React.ReactNode }> = ({ children
       
       nodeIds.forEach(id => {
         newStates[id] = {
-          ...(newStates[id] || { ...DEFAULT_AGENT_NODE_STATE.status }),
+          ...(newStates[id] || { ...DEFAULT_AGENT_NODE_STATE }),
           status,
           lastUpdated: Date.now()
         };

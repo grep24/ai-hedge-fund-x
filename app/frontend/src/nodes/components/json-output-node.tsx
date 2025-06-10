@@ -1,4 +1,4 @@
-import { type NodeProps } from '@xyflow/react';
+import { type NodeProps } from 'reactflow';
 import { FileJson, Loader2 } from 'lucide-react';
 import { useState } from 'react';
 
@@ -36,8 +36,8 @@ export function JsonOutputNode({
         selected={selected}
         isConnectable={isConnectable}
         icon={<FileJson className="h-5 w-5" />}
-        name={data.name || "JSON Output"}
-        description={data.description}
+        name={data?.name || "JSON Output"}
+        description={data?.description || "View analysis results in JSON format"}
         hasRightHandle={false}
       >
         <CardContent className="p-0">

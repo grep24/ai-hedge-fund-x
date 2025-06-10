@@ -1,4 +1,4 @@
-import { NodeStatus, OutputNodeData, useNodeContext } from '@/contexts/node-context';
+import { OutputNodeData, useNodeContext, NodeStatus } from '@/contexts/node-context';
 import { ModelProvider } from '@/services/types';
 import axios from 'axios';
 import type { BacktestConfig, BacktestResult, HedgeFundConfig, HedgeFundStatus, ModelConfig } from '../types';
@@ -86,11 +86,17 @@ export const tradingApi = {
     const params = new URLSearchParams({
       tickers: config.tickers.join(','),
       selected_agents: config.selected_agents.join(','),
-      model_name: config.model_name,
-      model_provider: config.model_provider,
       initial_cash: String(config.initial_cash),
       margin_requirement: String(config.margin_requirement),
     });
+    
+    // Add optional parameters if they exist
+    if (config.model_name) {
+      params.append('model_name', config.model_name);
+    }
+    if (config.model_provider) {
+      params.append('model_provider', config.model_provider);
+    }
 
     const eventSource = new EventSource(`${API_BASE_URL}/api/hedge-fund/run?${params}`);
     
@@ -134,7 +140,7 @@ export const api = {
     const { signal } = controller;
 
     // Make a POST request with the JSON body
-    fetch(`${API_BASE_URL}/hedge-fund/run`, {
+    fetch(`${API_BASE_URL}/api/hedge-fund/run`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -224,7 +230,9 @@ export const api = {
                       // Also update the output node
                       nodeContext.updateAgentNode('output', {
                         status: 'COMPLETE',
-                        message: 'Analysis complete'
+                        message: 'Analysis complete',
+                        ticker: null,
+                        analysis: null
                       });
                       break;
                     case 'error':

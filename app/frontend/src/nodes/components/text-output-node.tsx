@@ -1,4 +1,4 @@
-import { type NodeProps } from '@xyflow/react';
+import { type NodeProps } from 'reactflow';
 import { Loader2, Type } from 'lucide-react';
 import { useState } from 'react';
 
@@ -36,8 +36,8 @@ export function TextOutputNode({
         selected={selected}
         isConnectable={isConnectable}
         icon={<Type className="h-5 w-5" />}
-        name={data.name || "Text Output"}
-        description={data.description}
+        name={data?.name || "Text Output"}
+        description={data?.description || "View analysis results in text format"}
         hasRightHandle={false}
       >
         <CardContent className="p-0">

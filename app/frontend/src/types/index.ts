@@ -36,10 +36,12 @@ export interface Portfolio {
 export interface BacktestConfig {
   tickers: string[];
   initial_capital: number;
+  initial_cash: number;
   start_date: string;
   end_date: string;
   margin_requirement: number;
   show_reasoning: boolean;
+  use_ollama?: boolean;
 }
 
 export interface BacktestResult {
@@ -56,6 +58,9 @@ export interface BacktestResult {
 
 export interface HedgeFundConfig {
   tickers: string[];
+  selected_agents: string[];
+  model_name?: string;
+  model_provider?: string;
   initial_cash: number;
   margin_requirement: number;
   show_reasoning: boolean;
