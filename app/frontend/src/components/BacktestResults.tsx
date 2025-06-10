@@ -9,7 +9,7 @@ interface BacktestResultsProps {
 
 export const BacktestResults: React.FC<BacktestResultsProps> = ({ result }) => {
   // Create portfolio value data for chart
-  const portfolioData = result.trades.map((trade: any, index: number) => ({
+  const portfolioData = result.trades.map((trade: any) => ({
     date: trade.date,
     value: trade.portfolio_value,
   }));
@@ -105,7 +105,7 @@ export const BacktestResults: React.FC<BacktestResultsProps> = ({ result }) => {
         <Table
           columns={columns}
           dataSource={result.trades}
-          rowKey={(record: any, index) => index?.toString() || ''}
+          rowKey={(_, index) => index?.toString() || ''}
           pagination={{ pageSize: 20 }}
         />
       </Card>

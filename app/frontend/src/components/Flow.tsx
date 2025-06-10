@@ -24,7 +24,7 @@ type FlowProps = {
 };
 
 export function Flow({ className = '' }: FlowProps) {
-  const [nodes, setNodes, onNodesChange] = useNodesState<AppNode>(initialNodes);
+  const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes);
   const [edges, setEdges, onEdgesChange] = useEdgesState<Edge>([]);
   const [isInitialized, setIsInitialized] = useState(false);
   const proOptions = { hideAttribution: true };

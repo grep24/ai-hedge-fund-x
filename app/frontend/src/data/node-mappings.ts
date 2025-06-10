@@ -16,7 +16,6 @@ const nodeTypeDefinitions: Record<string, NodeTypeDefinition> = {
       data: {
         name: "Portfolio Manager",
         description: "The Decision Maker",
-        status: "Idle",
       },
     }),
   },
@@ -28,7 +27,6 @@ const nodeTypeDefinitions: Record<string, NodeTypeDefinition> = {
       data: {
         name: "JSON Output",
         description: "JSON Output Node",
-        status: "Idle",
       },
     }),
   },
@@ -40,7 +38,6 @@ const nodeTypeDefinitions: Record<string, NodeTypeDefinition> = {
       data: {
         name: "Text Output",
         description: "Output Node",
-        status: "Idle",
       },
     }),
   },
@@ -54,7 +51,7 @@ const nodeTypeDefinitions: Record<string, NodeTypeDefinition> = {
         data: {
           name: agent.display_name,
           description: agent.description || "",
-          status: "Idle",
+          messages: [],
         },
       }),
     };

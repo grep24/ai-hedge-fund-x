@@ -17,7 +17,6 @@ export const initialNodes: AppNode[] = [
     data: {
       name: 'Portfolio Manager',
       description: 'The Decision Maker',
-      status: 'Idle',
     },
   },
 ];

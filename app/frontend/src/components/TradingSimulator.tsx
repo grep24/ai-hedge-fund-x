@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Card, Form, Input, Button, Select, Space, Alert, Spin } from 'antd';
 import { tradingApi } from '@/services/api';
-import { useNodeContext } from '@/contexts/node-context';
+import { useNodeContext, NodeStatus } from '@/contexts/node-context';
 
 interface TradingSimulatorProps {
   onComplete?: (result: any) => void;
@@ -24,10 +24,15 @@ export const TradingSimulator: React.FC<TradingSimulatorProps> = ({ onComplete }
         tickers,
         show_reasoning: values.showReasoning,
       }, (event) => {
-        // 更新代理状态
+        // Update agent status
         if (event.agent && event.status) {
+          let nodeStatus: NodeStatus = 'IDLE';
+          if (event.status === 'IN_PROGRESS') nodeStatus = 'IN_PROGRESS';
+          else if (event.status === 'COMPLETE') nodeStatus = 'COMPLETE';
+          else if (event.status === 'ERROR') nodeStatus = 'ERROR';
+          
           updateAgentNode(event.agent, {
-            status: event.status,
+            status: nodeStatus,
             message: event.message || '',
             ticker: event.ticker || null,
             analysis: event.analysis || null,
@@ -47,14 +52,14 @@ export const TradingSimulator: React.FC<TradingSimulatorProps> = ({ onComplete }
       });
 
       // 监听错误
-      eventSource.addEventListener('error', (event: any) => {
-        setError('模拟交易过程中发生错误');
+      eventSource.addEventListener('error', () => {
+        setError('Connection lost');
         setLoading(false);
-        eventSource.close();
       });
 
-    } catch (err) {
-      setError('启动模拟交易失败');
+    } catch (error: any) {
+      console.error('Error simulating trading:', error);
+      setError(error.message || 'An error occurred');
       setLoading(false);
     }
   };

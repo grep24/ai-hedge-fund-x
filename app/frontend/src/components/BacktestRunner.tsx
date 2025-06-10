@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Card, Form, Input, Button, DatePicker, InputNumber, Space, Alert, Spin } from 'antd';
+import { Card, Form, Input, Button, DatePicker, InputNumber, Alert, Spin } from 'antd';
 import { tradingApi } from '@/services/api';
 import moment from 'dayjs';
 import type { BacktestConfig } from '@/types';

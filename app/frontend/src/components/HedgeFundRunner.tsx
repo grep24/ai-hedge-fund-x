@@ -1,11 +1,13 @@
 import React, { useState } from 'react';
 import { Card, Form, Input, Button, Space, Alert, Spin, InputNumber } from 'antd';
 import { tradingApi } from '@/services/api';
-import { useNodeContext } from '@/contexts/node-context';
+import { useNodeContext, NodeStatus } from '@/contexts/node-context';
 import { ModelSelector } from '@/components/ui/llm-selector';
 import { AgentSelector } from '@/components/AgentSelector';
 import type { ModelItem } from '@/data/models';
 import type { AgentItem } from '@/data/agents';
+import { apiModels, defaultModel } from '@/data/models';
+import type { HedgeFundConfig } from '@/types';
 
 interface HedgeFundRunnerProps {
   onComplete?: (result: any) => void;
@@ -18,6 +20,7 @@ export const HedgeFundRunner: React.FC<HedgeFundRunnerProps> = ({ onComplete }) 
   const { updateAgentNode } = useNodeContext();
   const [selectedModel, setSelectedModel] = useState<ModelItem | null>(null);
   const [selectedAgents, setSelectedAgents] = useState<AgentItem[]>([]);
+  const [apiModels, setApiModels] = useState<ModelItem[]>([]);
 
   const handleModelChange = (model: ModelItem | null) => {
     setSelectedModel(model);
@@ -31,21 +34,27 @@ export const HedgeFundRunner: React.FC<HedgeFundRunnerProps> = ({ onComplete }) 
     setLoading(true);
     setError(null);
     try {
-      const tickers = values.tickers.split(',').map((t: string) => t.trim());
+      const config: HedgeFundConfig = {
+        tickers: values.tickers.split(',').map((t: string) => t.trim()),
+        selected_agents: selectedAgents.map(agent => agent.key),
+        model_name: selectedModel?.model_name || defaultModel?.model_name || 'gpt-4o',
+        model_provider: selectedModel?.provider || defaultModel?.provider || 'OpenAI',
+        initial_cash: values.initialCash,
+        margin_requirement: values.marginRequirement / 100,
+        show_reasoning: true,
+      };
       
       // 创建EventSource进行流式连接
-      const eventSource = await tradingApi.runHedgeFund({
-        tickers,
-        selected_agents: selectedAgents.map(agent => agent.key),
-        model_name: selectedModel?.model_name || 'gpt-4',
-        model_provider: selectedModel?.provider || 'OpenAI',
-        initial_cash: values.initialCash,
-        margin_requirement: values.marginRequirement,
-      }, (event) => {
+      const eventSource = await tradingApi.runHedgeFund(config, (event) => {
         // 更新代理状态
         if (event.agent && event.status) {
+          let nodeStatus: NodeStatus = 'IDLE';
+          if (event.status === 'IN_PROGRESS') nodeStatus = 'IN_PROGRESS';
+          else if (event.status === 'COMPLETE') nodeStatus = 'COMPLETE';
+          else if (event.status === 'ERROR') nodeStatus = 'ERROR';
+          
           updateAgentNode(event.agent, {
-            status: event.status,
+            status: nodeStatus,
             message: event.message || '',
             ticker: event.ticker || null,
             analysis: event.analysis || null,
@@ -98,11 +107,15 @@ export const HedgeFundRunner: React.FC<HedgeFundRunnerProps> = ({ onComplete }) 
         </Form.Item>
 
         <Form.Item
-          label="选择LLM模型"
+          name="model"
+          label="Model"
+          rules={[{ required: true, message: 'Please select a model' }]}
         >
           <ModelSelector
-            value={selectedModel}
-            onChange={handleModelChange}
+            models={apiModels}
+            value={selectedModel?.model_name || ''}
+            onChange={setSelectedModel}
+            placeholder="Select a model..."
           />
         </Form.Item>
 
