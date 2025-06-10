@@ -39,21 +39,16 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# 注册路由
+# 1. 先挂载前端静态文件到根路径
+frontend_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), "frontend", "dist")
+if os.path.exists(frontend_path):
+    app.mount("/", StaticFiles(directory=frontend_path, html=True), name="frontend")
+
+# 2. 再注册API路由到 /api 前缀
 app.include_router(health.router, prefix="/api/health", tags=["health"])
 app.include_router(trading.router, prefix="/api/trading", tags=["trading"])
 app.include_router(hedge_fund.router, prefix="/api/hedge-fund", tags=["hedge-fund"])
 app.include_router(monitoring.router, prefix="/api/monitoring", tags=["monitoring"])
 
-@app.get("/")
-async def root():
-    return {
-        "name": "AI Hedge Fund X",
-        "version": "1.0.0",
-        "status": "running"
-    }
-
-# 配置静态文件服务 - 放在所有API路由之后
-frontend_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), "frontend", "dist")
-if os.path.exists(frontend_path):
-    app.mount("/", StaticFiles(directory=frontend_path, html=True), name="frontend")
+# 3. 移除 / 路由的JSON返回，确保访问根路径时优先返回前端页面
+# （如需API健康检查，请访问 /api/health ）
