@@ -1,156 +1,128 @@
 import React, { useState } from 'react';
 import { Card, Form, Input, Button, DatePicker, InputNumber, Space, Alert, Spin } from 'antd';
 import { tradingApi } from '@/services/api';
-import { useNodeContext } from '@/contexts/node-context';
-import dayjs from 'dayjs';
+import moment from 'dayjs';
+import type { BacktestConfig } from '@/types';
 
-interface BacktestRunnerProps {
-  onComplete?: (result: any) => void;
-}
+const { RangePicker } = DatePicker;
 
-export const BacktestRunner: React.FC<BacktestRunnerProps> = ({ onComplete }) => {
+export const BacktestRunner: React.FC = () => {
   const [form] = Form.useForm();
   const [loading, setLoading] = useState(false);
+  const [results, setResults] = useState<string[]>([]);
   const [error, setError] = useState<string | null>(null);
-  const { updateAgentNode } = useNodeContext();
 
-  const handleSubmit = async (values: any) => {
+  const handleRunBacktest = async (values: any) => {
     setLoading(true);
     setError(null);
+    setResults([]);
+
     try {
-      const tickers = values.tickers.split(',').map((t: string) => t.trim());
-      
-      // 创建EventSource进行流式连接
-      const eventSource = await tradingApi.runBacktest({
-        tickers,
+      const config: BacktestConfig = {
+        tickers: values.tickers.split(',').map((t: string) => t.trim()),
         start_date: values.dateRange[0].format('YYYY-MM-DD'),
         end_date: values.dateRange[1].format('YYYY-MM-DD'),
+        initial_capital: values.initialCash,
         initial_cash: values.initialCash,
-        margin_requirement: values.marginRequirement,
-        use_ollama: false,
-      }, (event) => {
-        // 更新代理状态
-        if (event.agent && event.status) {
-          updateAgentNode(event.agent, {
-            status: event.status,
-            message: event.message || '',
-            ticker: event.ticker || null,
-            analysis: event.analysis || null,
-            timestamp: event.timestamp,
-          });
+        margin_requirement: values.marginRequirement / 100,
+        show_reasoning: true,
+        use_ollama: false
+      };
+
+      const eventSource = await tradingApi.runBacktest(config, (event) => {
+        if (event.status === 'complete') {
+          setLoading(false);
         }
+        setResults(prev => [...prev, `${event.timestamp} - ${event.agent}: ${event.status}`]);
       });
 
-      // 监听完成事件
-      eventSource.addEventListener('complete', (event: any) => {
-        const result = JSON.parse(event.data);
-        if (onComplete) {
-          onComplete(result);
-        }
-        setLoading(false);
+      // Clean up on unmount
+      return () => {
         eventSource.close();
-      });
-
-      // 监听错误
-      eventSource.addEventListener('error', (event: any) => {
-        setError('回测过程中发生错误');
-        setLoading(false);
-        eventSource.close();
-      });
-
-    } catch (err) {
-      setError('启动回测失败');
+      };
+    } catch (err: any) {
+      setError(err.message || 'An error occurred');
       setLoading(false);
     }
   };
 
   return (
-    <Card title="策略回测" className="w-full">
+    <Card title="Backtest Runner">
       <Form
         form={form}
         layout="vertical"
-        onFinish={handleSubmit}
-        initialValues={{
-          tickers: 'AAPL,MSFT,GOOGL',
-          dateRange: [dayjs().subtract(3, 'month'), dayjs()],
-          initialCash: 100000,
-          marginRequirement: 0,
-        }}
+        onFinish={handleRunBacktest}
       >
         <Form.Item
-          label="股票代码"
           name="tickers"
-          rules={[{ required: true, message: '请输入股票代码' }]}
+          label="Tickers"
+          rules={[{ required: true, message: 'Please enter at least one ticker' }]}
         >
-          <Input placeholder="输入股票代码,用逗号分隔 (例如: AAPL,MSFT,GOOGL)" />
+          <Input placeholder="AAPL, GOOGL, TSLA" />
         </Form.Item>
 
         <Form.Item
-          label="回测时间范围"
           name="dateRange"
-          rules={[{ required: true, message: '请选择回测时间范围' }]}
+          label="Date Range"
+          rules={[{ required: true, message: 'Please select date range' }]}
+          initialValue={[moment().subtract(1, 'year'), moment()]}
         >
-          <DatePicker.RangePicker />
+          <RangePicker style={{ width: '100%' }} />
         </Form.Item>
 
         <Form.Item
-          label="初始资金"
           name="initialCash"
-          rules={[{ required: true, message: '请输入初始资金' }]}
+          label="Initial Cash"
+          rules={[{ required: true, message: 'Please enter initial cash' }]}
+          initialValue={100000}
         >
           <InputNumber
+            style={{ width: '100%' }}
             min={1000}
             max={10000000}
-            step={1000}
-            style={{ width: '100%' }}
-            formatter={value => `$ ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
-            parser={value => value!.replace(/\$\s?|(,*)/g, '')}
+            prefix="$"
           />
         </Form.Item>
 
         <Form.Item
-          label="保证金要求"
           name="marginRequirement"
-          rules={[{ required: true, message: '请输入保证金要求' }]}
+          label="Margin Requirement (%)"
+          rules={[{ required: true, message: 'Please enter margin requirement' }]}
+          initialValue={100}
         >
           <InputNumber
-            min={0}
-            max={1}
-            step={0.1}
             style={{ width: '100%' }}
-            formatter={value => `${value * 100}%`}
-            parser={value => value!.replace('%', '') / 100}
+            min={0}
+            max={100}
           />
         </Form.Item>
 
         <Form.Item>
-          <Space>
-            <Button type="primary" htmlType="submit" loading={loading}>
-              开始回测
-            </Button>
-            <Button onClick={() => form.resetFields()}>
-              重置
-            </Button>
-          </Space>
+          <Button type="primary" htmlType="submit" loading={loading} block>
+            Run Backtest
+          </Button>
         </Form.Item>
-
-        {error && (
-          <Alert
-            message="错误"
-            description={error}
-            type="error"
-            showIcon
-            closable
-            onClose={() => setError(null)}
-          />
-        )}
-
-        {loading && (
-          <div className="text-center mt-4">
-            <Spin tip="回测进行中..." />
-          </div>
-        )}
       </Form>
+
+      {error && (
+        <Alert message={error} type="error" closable style={{ marginTop: 16 }} />
+      )}
+
+      {results.length > 0 && (
+        <Card title="Results" style={{ marginTop: 16 }}>
+          <div style={{ maxHeight: 400, overflow: 'auto' }}>
+            {results.map((result, index) => (
+              <div key={index}>{result}</div>
+            ))}
+          </div>
+        </Card>
+      )}
+
+      {loading && (
+        <div style={{ textAlign: 'center', marginTop: 16 }}>
+          <Spin tip="Running backtest..." />
+        </div>
+      )}
     </Card>
   );
 }; 

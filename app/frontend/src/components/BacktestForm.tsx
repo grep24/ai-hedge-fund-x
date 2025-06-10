@@ -1,38 +1,41 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { Form, Input, DatePicker, InputNumber, Button, message } from 'antd';
-import { ModelSelector } from './ModelSelector';
-import type { BacktestConfig, BacktestResult, ModelConfig } from '../types';
-import { tradingApi } from '../services/api';
+import { tradingApi, EventSourceCallback } from '../services/api';
+import type { BacktestConfig } from '../types';
 
 const { RangePicker } = DatePicker;
 
 interface BacktestFormProps {
-  onSuccess: (result: BacktestResult) => void;
+  onSuccess: (eventSource: EventSource) => void;
 }
 
 export const BacktestForm: React.FC<BacktestFormProps> = ({ onSuccess }) => {
-  const [loading, setLoading] = useState(false);
   const [form] = Form.useForm();
+  const [loading, setLoading] = React.useState(false);
 
   const handleSubmit = async (values: any) => {
+    setLoading(true);
     try {
-      setLoading(true);
-      const [startDate, endDate] = values.dateRange;
-      
       const config: BacktestConfig = {
         tickers: values.tickers.split(',').map((t: string) => t.trim()),
-        start_date: startDate.format('YYYY-MM-DD'),
-        end_date: endDate.format('YYYY-MM-DD'),
+        start_date: values.dateRange[0].format('YYYY-MM-DD'),
+        end_date: values.dateRange[1].format('YYYY-MM-DD'),
+        initial_capital: values.initialCash,
         initial_cash: values.initialCash,
-        model_config: values.model,
+        margin_requirement: values.marginRequirement / 100,
+        show_reasoning: true,
       };
-
-      const result = await tradingApi.runBacktest(config);
-      onSuccess(result);
-      message.success('回测完成！');
+      
+      const onEvent: EventSourceCallback = (event) => {
+        console.log('Backtest event:', event);
+      };
+      
+      const eventSource = await tradingApi.runBacktest(config, onEvent);
+      onSuccess(eventSource);
+      message.success('回测已开始');
     } catch (error) {
-      console.error('回测失败:', error);
-      message.error('回测失败，请重试');
+      console.error('Error starting backtest:', error);
+      message.error('启动回测失败');
     } finally {
       setLoading(false);
     }
@@ -69,17 +72,22 @@ export const BacktestForm: React.FC<BacktestFormProps> = ({ onSuccess }) => {
       >
         <InputNumber
           style={{ width: '100%' }}
-          formatter={(value) => `$ ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
-          parser={(value) => value!.replace(/\$\s?|(,*)/g, '')}
           min={1000}
+          prefix="$"
         />
       </Form.Item>
 
       <Form.Item
-        name="model"
-        rules={[{ required: true, message: '请选择模型' }]}
+        label="保证金要求"
+        name="marginRequirement"
+        rules={[{ required: true, message: '请输入保证金要求' }]}
+        initialValue={100}
       >
-        <ModelSelector />
+        <InputNumber
+          style={{ width: '100%' }}
+          min={0}
+          max={100}
+        />
       </Form.Item>
 
       <Form.Item>

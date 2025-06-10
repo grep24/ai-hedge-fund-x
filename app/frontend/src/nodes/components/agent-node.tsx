@@ -12,6 +12,7 @@ import { type AgentNode } from '../types';
 import { getStatusColor } from '../utils';
 import { AgentOutputDialog } from './agent-output-dialog';
 import { NodeShell } from './node-shell';
+import { Button } from '@/components/ui/button';
 
 export function AgentNode({
   data,
@@ -91,20 +92,24 @@ export function AgentNode({
                     <div className="text-subtitle text-muted-foreground flex items-center gap-1">
                       Model
                     </div>
-                    <ModelSelector
-                      models={apiModels}
-                      value={selectedModel?.model_name || ""}
-                      onChange={handleModelChange}
-                      placeholder="Auto-select"
-                    />
-                    {selectedModel && (
-                      <button
-                        onClick={handleUseGlobalModel}
-                        className="text-subtitle text-muted-foreground hover:text-foreground transition-colors text-left"
-                      >
-                        Reset to global model
-                      </button>
-                    )}
+                    <div className="mt-3">
+                      <ModelSelector 
+                        models={apiModels}
+                        value={selectedModel?.model_name || ""}
+                        onChange={handleModelChange}
+                        placeholder="Use global model"
+                      />
+                      {selectedModel && (
+                        <Button
+                          variant="link"
+                          size="sm"
+                          className="mt-1 p-0 h-auto"
+                          onClick={handleUseGlobalModel}
+                        >
+                          Use global model
+                        </Button>
+                      )}
+                    </div>
                   </div>
                 </AccordionContent>
               </AccordionItem>

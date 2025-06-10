@@ -1,14 +1,16 @@
 export type NodeStatus = 'idle' | 'running' | 'success' | 'error';
 
 export interface ModelConfig {
-  name: string;
+  display_name: string;
+  model_name: string;
   provider: string;
   description?: string;
   parameters?: Record<string, any>;
 }
 
 export interface ModelItem {
-  name: string;
+  display_name: string;
+  model_name: string;
   provider: string;
   description?: string;
 }

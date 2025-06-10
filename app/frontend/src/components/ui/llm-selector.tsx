@@ -19,17 +19,27 @@ import { cn } from "@/lib/utils"
 import { apiModels, type ModelItem } from "@/data/models"
 
 interface ModelSelectorProps {
-  value: ModelItem | null;
-  onChange: (item: ModelItem | null) => void;
+  models: ModelItem[];
+  value: string;
+  onChange: (model: ModelItem | null) => void;
   placeholder?: string;
+  searchPlaceholder?: string;
+  emptyText?: string;
+  className?: string;
 }
 
-export function ModelSelector({ 
-  value, 
-  onChange, 
-  placeholder = "选择LLM模型..." 
+export function ModelSelector({
+  models,
+  value,
+  onChange,
+  placeholder = "Select model...",
+  searchPlaceholder = "Search models...",
+  emptyText = "No model found.",
+  className
 }: ModelSelectorProps) {
-  const [open, setOpen] = React.useState(false)
+  const [open, setOpen] = React.useState(false);
+
+  const selectedModel = models.find(model => model.model_name === value);
 
   return (
     <Popover open={open} onOpenChange={setOpen}>
@@ -38,54 +48,40 @@ export function ModelSelector({
           variant="outline"
           role="combobox"
           aria-expanded={open}
-          className="w-full justify-between"
+          className={cn("w-full justify-between", className)}
         >
-          <span className="text-subtitle">
-            {value
-              ? value.display_name
-              : placeholder}
-          </span>
-          <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0" />
+          {selectedModel
+            ? `${selectedModel.display_name} (${selectedModel.provider})`
+            : placeholder}
+          <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
         </Button>
       </PopoverTrigger>
-      <PopoverContent className="w-full min-w-[300px] p-0">
+      <PopoverContent className="w-full p-0">
         <Command>
-          <CommandInput placeholder="搜索模型..." className="h-9" />
-          <CommandList>
-            <CommandEmpty>没有找到匹配的模型。</CommandEmpty>
-            <CommandGroup>
-              {apiModels.map((model) => (
-                <CommandItem
-                  key={model.model_name}
-                  value={model.model_name}
-                  onSelect={(currentValue) => {
-                    if (currentValue === value?.model_name) {
-                      onChange(null);
-                    } else {
-                      const selectedModel = apiModels.find(m => m.model_name === currentValue);
-                      if (selectedModel) {
-                        onChange(selectedModel);
-                      }
-                    }
-                    setOpen(false);
-                  }}
-                >
-                  <div className="flex flex-col items-start">
-                    <span className="text-title">{model.display_name}</span>
-                    <span className="text-subtitle text-muted-foreground">{model.provider}</span>
-                  </div>
-                  <Check
-                    className={cn(
-                      "ml-auto",
-                      value?.model_name === model.model_name ? "opacity-100" : "opacity-0"
-                    )}
-                  />
-                </CommandItem>
-              ))}
-            </CommandGroup>
-          </CommandList>
+          <CommandInput placeholder={searchPlaceholder} />
+          <CommandEmpty>{emptyText}</CommandEmpty>
+          <CommandGroup>
+            {models.map((model) => (
+              <CommandItem
+                key={model.model_name}
+                value={model.model_name}
+                onSelect={(currentValue) => {
+                  onChange(currentValue === value ? null : model);
+                  setOpen(false);
+                }}
+              >
+                <Check
+                  className={cn(
+                    "mr-2 h-4 w-4",
+                    value === model.model_name ? "opacity-100" : "opacity-0"
+                  )}
+                />
+                {model.display_name} ({model.provider})
+              </CommandItem>
+            ))}
+          </CommandGroup>
         </Command>
       </PopoverContent>
     </Popover>
-  )
+  );
 } 
