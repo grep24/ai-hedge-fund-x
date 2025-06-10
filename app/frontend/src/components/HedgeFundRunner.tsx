@@ -21,10 +21,6 @@ export const HedgeFundRunner: React.FC<HedgeFundRunnerProps> = ({ onComplete }) 
   const [selectedModel, setSelectedModel] = useState<ModelItem | null>(null);
   const [selectedAgents, setSelectedAgents] = useState<AgentItem[]>([]);
 
-  const handleModelChange = (model: ModelItem | null) => {
-    setSelectedModel(model);
-  };
-
   const handleAgentChange = (agents: AgentItem[]) => {
     setSelectedAgents(agents);
   };

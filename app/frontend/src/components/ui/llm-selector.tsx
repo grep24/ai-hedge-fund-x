@@ -16,10 +16,10 @@ interface ModelSelectorProps {
   className?: string;
 }
 
-export function ModelSelector({
-  models,
-  value,
-  onChange,
+export function ModelSelector({ 
+  models, 
+  value, 
+  onChange, 
   placeholder = "Select model...",
   searchPlaceholder = "Search models...",
   emptyText = "No model found.",
@@ -40,7 +40,7 @@ export function ModelSelector({
         >
           {selectedModel
             ? `${selectedModel.display_name} (${selectedModel.provider})`
-            : placeholder}
+              : placeholder}
           <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
         </Button>
       </PopoverTrigger>
@@ -48,26 +48,26 @@ export function ModelSelector({
         <Command>
           <CommandInput placeholder={searchPlaceholder} />
           <CommandEmpty>{emptyText}</CommandEmpty>
-          <CommandGroup>
-            {models.map((model) => (
-              <CommandItem
-                key={model.model_name}
-                value={model.model_name}
-                onSelect={(currentValue) => {
+            <CommandGroup>
+              {models.map((model) => (
+                <CommandItem
+                  key={model.model_name}
+                  value={model.model_name}
+                  onSelect={(currentValue) => {
                   onChange(currentValue === value ? null : model);
-                  setOpen(false);
-                }}
-              >
-                <Check
-                  className={cn(
+                    setOpen(false);
+                  }}
+                >
+                  <Check
+                    className={cn(
                     "mr-2 h-4 w-4",
-                    value === model.model_name ? "opacity-100" : "opacity-0"
-                  )}
-                />
+                      value === model.model_name ? "opacity-100" : "opacity-0"
+                    )}
+                  />
                 {model.display_name} ({model.provider})
-              </CommandItem>
-            ))}
-          </CommandGroup>
+                </CommandItem>
+              ))}
+            </CommandGroup>
         </Command>
       </PopoverContent>
     </Popover>

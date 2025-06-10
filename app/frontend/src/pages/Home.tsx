@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { Tabs, Card } from 'antd';
 import { TradingSimulator } from '@/components/TradingSimulator';
 import { BacktestRunner } from '@/components/BacktestRunner';
@@ -8,16 +8,12 @@ import type { TradingResult, BacktestResult } from '@/types';
 
 const { TabPane } = Tabs;
 
-export const Home: React.FC = () => {
-  const [tradingResult, setTradingResult] = useState<TradingResult | null>(null);
-  const [backtestResult, setBacktestResult] = useState<BacktestResult | null>(null);
+export default function Home() {
+  const [backtestResult] = useState<BacktestResult | null>(null);
+  const [tradingResult, setTradingResult] = useState<any>(null);
 
   const handleTradingComplete = (result: TradingResult) => {
     setTradingResult(result);
-  };
-
-  const handleBacktestComplete = (result: BacktestResult) => {
-    setBacktestResult(result);
   };
 
   return (
@@ -89,4 +85,4 @@ export const Home: React.FC = () => {
       </div>
     </div>
   );
-}; 
+} 
