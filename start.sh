@@ -38,22 +38,14 @@ poetry show
 echo "Checking src directory..."
 ls -la src/
 
-# 构建前端
-echo "Building frontend..."
-cd /app/app/frontend
-# 确保node_modules目录存在
-if [ ! -d "node_modules" ]; then
-    echo "Installing frontend dependencies..."
-    npm install --no-audit --no-fund
+# 检查前端构建是否存在
+echo "Checking frontend build..."
+if [ -d "/app/app/frontend/dist" ]; then
+    echo "Frontend build found at /app/app/frontend/dist"
+    ls -la /app/app/frontend/dist/
+else
+    echo "Warning: Frontend build not found. Frontend may not be available."
 fi
-# 确保dist目录存在
-mkdir -p dist
-npm run build
-cd /app
-
-# 确保前端构建目录存在
-echo "Ensuring frontend build directory exists..."
-mkdir -p /app/app/frontend/dist
 
 # 等待数据库和其他服务（如果有的话）
 echo "Waiting for services to be ready..."

@@ -1,6 +1,14 @@
 [build]
 builder = "nixpacks"
-buildCommand = "curl -fsSL https://deb.nodesource.com/setup_20.x | bash - && apt-get install -y nodejs && poetry install --no-dev --no-interaction"
+buildCommand = """
+curl -fsSL https://deb.nodesource.com/setup_20.x | bash - && \
+apt-get install -y nodejs && \
+poetry install --no-dev --no-interaction && \
+cd app/frontend && \
+npm install --no-audit --no-fund && \
+npm run build && \
+cd /app
+"""
 
 [deploy]
 startCommand = "chmod +x start.sh && ./start.sh"
