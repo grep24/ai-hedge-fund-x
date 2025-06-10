@@ -1,45 +1,64 @@
+export type NodeStatus = 'idle' | 'running' | 'success' | 'error';
+
 export interface ModelConfig {
   name: string;
   provider: string;
-  description: string;
+  description?: string;
+  parameters?: Record<string, any>;
+}
+
+export interface ModelItem {
+  name: string;
+  provider: string;
+  description?: string;
+}
+
+export interface Position {
+  ticker: string;
+  shares: number;
+  value: number;
+  cost_basis: number;
+  unrealized_pnl: number;
+  unrealized_pnl_pct: number;
+}
+
+export interface Portfolio {
+  total_value: number;
+  cash: number;
+  positions: Position[];
+  performance: {
+    total_return: number;
+    sharpe_ratio: number;
+    max_drawdown: number;
+  };
 }
 
 export interface BacktestConfig {
   tickers: string[];
+  initial_capital: number;
   start_date: string;
   end_date: string;
-  initial_cash: number;
   margin_requirement: number;
-  use_ollama?: boolean;
+  show_reasoning: boolean;
 }
 
 export interface BacktestResult {
-  performance_metrics: {
+  portfolio: Portfolio;
+  trades: any[];
+  metrics: {
     total_return: number;
-    annualized_return: number;
     sharpe_ratio: number;
     max_drawdown: number;
     win_rate: number;
     profit_factor: number;
   };
-  backtest_results: {
-    trades: Array<{
-      date: string;
-      action: string;
-      ticker: string;
-      quantity: number;
-      price: number;
-    }>;
-  };
 }
 
 export interface HedgeFundConfig {
   tickers: string[];
-  selected_agents: string[];
-  model_name: string;
-  model_provider: string;
   initial_cash: number;
   margin_requirement: number;
+  show_reasoning: boolean;
 }
 
 export interface HedgeFundStatus {
