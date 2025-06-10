@@ -1,7 +1,0 @@
-{
-  "name": "ai-hedge-fund",
-  "version": "1.0.0",
-  "scripts": {
-    "build": "chmod +x build.sh && ./build.sh"
-  }
-} 
