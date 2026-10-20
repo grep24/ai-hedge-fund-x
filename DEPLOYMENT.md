@@ -1,5 +1,9 @@
 # Railway部署指南
 
+> **⚠️ 已过时 (2026-07 审计)**：本文描述的 Dockerfile 方案后来被放弃（构建失败/内存超限），
+> 最终改为纯 Python Nixpacks 自动检测 + 本地预构建前端（见 `Procfile`、`start_server.py`、
+> `build-frontend-local.sh` 和根目录 `CLAUDE.md`）。以下内容仅作历史参考。
+
 ## 🚨 最新更新
 
 我们现在使用Dockerfile来确保构建的可靠性和一致性。这解决了nixpacks在处理Python + Node.js混合项目时的问题。
